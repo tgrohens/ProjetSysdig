@@ -1,0 +1,13 @@
+Rapport de système digital
+
+Achille Aknin
+Théotime Grohens
+Paul Kirchner
+
+# Architecture
+
+Nous allons réaliser un processeur ARMv3 (32 bits) : seulement le mode processeur ARM et pas les modes Thumb ou Jazelle. Nous ne ferons pas la version avec multiplication longue (64 bits stockés dans 2 registres), ni les instructions DSP supplémentaires.
+
+# Idée
+
+La montre sera écrite en assembleur. Nous utiliserons les software interrupt pour interagir avec l’entrée-sortie et afficher l’heure.
