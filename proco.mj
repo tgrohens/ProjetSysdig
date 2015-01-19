@@ -1,0 +1,108 @@
+const n=32
+
+AND<n>(a:[n],b:[n])=(s:[n]) where
+	if n=0 then
+		s=[]
+	else
+		s=(a[0]&b[0]).AND<n-1>(a[1..],b[1..])
+	end if
+end where
+
+EOR<n>(a:[n],b:[n])=(s:[n]) where
+	if n=0 then
+		s=[]
+	else
+		s=(a[0]^b[0]).EOR<n-1>(a[1..],b[1..])
+	end if
+end where
+
+ORR<n>(a:[n],b:[n])=(s:[n]) where
+	if n=0 then
+		s=[]
+	else
+		s=(a[0]+b[0]).EOR<n-1>(a[1..],b[1..])
+	end if
+end where
+
+BIC<n>(a:[n],b:[n])=(s:[n]) where
+	if n=0 then
+		s=[]
+	else
+		s=(a[0]&(not b[0])).EOR<n-1>(a[1..],b[1..])
+	end if
+end where
+
+neg<n>(a:[n])=(s:[n]) where
+	if n=0 then
+		s=[]
+	else
+		s=(not a[0]).neg<n-1>(a[1..])
+	end if
+end where
+
+add(a,b,c)=(s,r) where
+	r=((a^b) & c)+(a & b);
+	s=a^b^c
+end where
+
+ajoute<n>(a:[n],b:[n],r)=(s:[n],nr) where
+	if n=0 then
+		s=[];
+		nr=0
+	else
+		(s0,ret)=add(a[0],b[0],r);
+		(s1,nr)=ajoute<n-1>(a[1..],b[1..],ret);
+		s=s0.s1
+	end if
+end where
+
+rep<n>(a)=(s:[n]) where
+	if n=0 then
+		s=[]
+	else
+		s=a.rep<n-1>(a)
+	end if
+end where
+
+un<n>()=(s:[n]) where
+	s=1.rep<n-1>(0)
+end where
+
+moins<n>(a:[n])=(s:[n]) where
+	(s,r)=ajoute<n>(un<n>(),neg<n>(a),0)
+end where
+
+sub(a:[n],b:[n])=(s:[n],r) where
+	(s,r)=ajoute<n>(a,moins<n>(b),0)
+end where
+
+mul<n>(a:[n],b:[n])=(s:[2*n]) where
+	if n=0 then
+		s=[]
+	else
+		(s,r)=ajoute<2*n>(0.0.mul<n-1>(a[1..],b),AND<2*n>(rep<2*n>(a[0]),b),0)
+	end if
+end where
+
+decalG<r,n>(a:[n],b)=(s:[r+n]) where
+	if r=0 then
+		s=a
+	else
+		s=b.decalG<r-1,n>(a)
+	end if
+end where
+
+decalD<d,n>(a:[n])=(s:[n-d],r:[d]) where
+	if d=0 then
+		s=a;
+		r=[]
+	else
+		(s1,r1)=decalD<d-1,n>(a);
+		r=s1[0].r;
+		s=s1[1..];
+	end if
+end where
+
+main()=(a) where
+	a=0
+end where
