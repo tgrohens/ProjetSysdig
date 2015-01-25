@@ -298,11 +298,56 @@ lecture(op:[n],c,r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[n],
 	(LSRR,LSRRc)=lsrR(Rd,Rm,c);
 	(ASRR,ASRRc)=asrR(Rd,Rm,c);
 	(RORR,RORRc)=rorR(Rd,Rm,c);
-	(IMM,IMMc)=lsl(0.val[8..11],val[0..7].rep<24>(0),c);
+	(IMM,IMMc)=lsl(0.op[8..11],op[0..7].rep<24>(0),c);
 	rnc=Mux<n+1>(imm,Ltable3<n+1>(decal,LSL.LSLc,LSLR.LSLRc,LSR.LSRc,LSRR.LSRRc,ASR.ASRc,ASRR.ASRRc,ROR.RORc,RORR.RORRc),IMM.IMMc);
 	r=rnc[0..(n-1)];
 	nc=rnc[n];
 end where
+
+overflow(a:[n],b:[n],c:[n])=(v) where
+	v=(not a[n-1]^b[n-1]) and (a[n-1]^c[n-1]);
+end where
+
+alu(op:[n],cpsr:[n],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[n],r9:[n],r10:[n],r11:[n],r12:[n],r13:[n],r14:[n],r15:[n])=
+(ncpsr:[n],sr0:[n],sr1:[n],sr2:[n],sr3:[n],sr4:[n],sr5:[n],sr6:[n],sr7:[n],sr8:[n],sr9:[n],sr10:[n],sr11:[n],sr12:[n],sr13:[n],sr14:[n],sr15:[n]) where
+	v=cpsr[28];
+	c=cpsr[29];
+	(Rs,Rsc)=lecture(op,c,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
+	Rn=Ltable4<n>(op[16..19],r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
+	Rd=Ltable4<n>(op[12..15],r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
+	ANDv=AND<n>(Rs,Rn).Rsc.v;
+	EORv=EOR<n>(Rs,Rn).Rsc.v;
+	moinsRs=moins<n>(Rs);
+	moinsRn=moins<n>(Rn);
+	negRs=neg<n>(Rs);
+	negRn=neg<n>(Rn);
+	(sub,subc)=ajoute<n>(Rn,moinsRs,0);
+	SUB=sub.subc.overflow(Rn,moinsRs,sub);
+	(rsb,rsbc)=ajoute<n>(Rs,moinsRn,0);
+	RSB=rsb.rsbc.overflow(Rs,moinsRn,rsb);
+	(add,addc)=ajoute<n>(Rs,Rn,0);
+	ADD=add.addc.overflow(Rs,Rn,add);
+	(adc,adcc)=ajoute<n>(Rs,Rn,c);
+	ADC=adc.adcc.overflow(Rs,Rn,adc);
+	(sbc,sbcc)=ajoute<n>(Rn,negRs,c);
+	SBC=sbc.sbcc.overflow(Rn,negRs,sbc);
+	(rsc,rscc)=ajoute<n>(negRn,Rs,c);
+	RSC=rsc.rscc.overflow(negRn,Rs,rsc);
+	TST=ANDv;
+	TEQ=EORv;
+	CMP=SUB;
+	CMN=ANDv;
+	ORRv=ORR<n>(Rs,Rn).Rsc.v;
+	MOV=Rs.Rsc.v;
+	BICv=BIC<n>(Rs,Rn).Rsc.v;
+	MVN=negRs.Rsc.v;
+	res=Ltable4<n+2>(op[21..24],ANDv,EORv,SUB,RSB,ADD,ADC,SBC,RSC,TST,TEQ,CMP,CMN,ORRv,MOV,BICv,MVN); 
+	exec=cond(op[28..31],cpsr[28..31]);
+	R=Mux<n>((not op[23])&op[24]&exec,res[0..(n-1)],Rd);
+	(sr0,sr1,sr2,sr3,sr4,sr5,sr6,sr7,sr8,sr9,sr10,sr11,sr12,sr13,sr14,sr15)=Etable4<n>(op[12..15],R,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
+	ncpsr=cpsr[0..27].Mux<4>(op[20]&exec,cpsr[28..31],res[n+1].res[n].eq<n>(R,rep<n>(0)).R[n-1]);
+end where
+
 
 main()=(e0:[n],e1:[n]) where
 	a=0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;
