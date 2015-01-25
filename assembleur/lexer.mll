@@ -58,6 +58,8 @@ rule token = parse
   | "BL" { BL }
   | "CMP" { CMP }
   | "CMN" { CMN }
+  | "TST" { TST }
+  | "TEQ" { TEQ }
   
   | "SWI" { SWI }
 
