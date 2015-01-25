@@ -1,0 +1,17 @@
+type instr =
+  |Adc of (cond * bool (* S *) * register (*Rn*) * register (*Rd*) * shifter)
+  |Add of (cond * bool * register * register * shifter)
+  |And of (cond * bool * register * register * shifter)
+  |Bic of (cond * bool * register * register * shifter)
+  |Eor of (cond * bool * register * register * shifter)
+  |Orr of (cond * bool * register * register * shifter)
+  |Rsb of (cond * bool * register * register * shifter)
+  |Rsc of (cond * bool * register * register * shifter)
+  |Sbc of (cond * bool * register * register * shifter)
+  |Sub of (cond * bool * register * register * shifter)
+  |Branch of (cond * bool * int)
+  |Cmp of (cond * register * shifter)
+  |Cmn of (cond * register * shifter)
+  |Breakpoint of int
+  |Clz of (cond * register (*Rd*) * register (*Rm*))
+  |Ldr of (
