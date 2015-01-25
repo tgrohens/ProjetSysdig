@@ -58,7 +58,7 @@ end where
 ajoute<n>(a:[n],b:[n],r)=(s:[n],nr) where
 	if n=0 then
 		s=[];
-		nr=0
+		nr=r;
 	else
 		(s0,ret)=add(a[0],b[0],r);
 		(s1,nr)=ajoute<n-1>(a[1..],b[1..],ret);
@@ -405,7 +405,7 @@ debug()=(e0:[n],e1:[n]) where
 	(e0,c)=lslR(a,b,0);
 end where
 
-main()=(e,r0c:[n],r1c:[n],r2c:[n],r3c:[n],r4c:[n],r5c:[n],r6c:[n],r7c:[n],r8c:[n],r9c:[n],r10c:[n],r11c:[n],r12c:[n],r13c:[n],r14d:[n],pce:[n],cpsrb:[n],cpsra:[n]) where
+main()=(r0c:[n],r1c:[n],r2c:[n],r3c:[n],r4c:[n],r5c:[n],r6c:[n],r7c:[n],r8c:[n],r9c:[n],r10c:[n],r11c:[n],r12c:[n],r13c:[n],r14d:[n],pce:[n],cpsrb:[n],cpsra:[n]) where
 	r0=registre<n>(r0c);
 	r1=registre<n>(r1c);
 	r2=registre<n>(r2c);
@@ -428,9 +428,10 @@ main()=(e,r0c:[n],r1c:[n],r2c:[n],r3c:[n],r4c:[n],r5c:[n],r6c:[n],r7c:[n],r8c:[n
 	cpsr=registre<n>(cpsrb);
 
 
-(*	op=rom<n/2,n>(pc[0..(n/2)-1]);*)
-	op=rep<8>(1).rep<4>(0).0.0.0.1.rep<4>(0).1.0.0.1.0.1.0.0.0.1.1.1;
-	e=cond(op[28..31],cpsr[28..31]);
+	op=rom<n/2,n>(pc[0..(n/2)-1]);
+(*	r8bis=rep<32>(1);
+	op=1.rep<7>(0).rep<4>(0).0.0.0.1.0.0.0.1.1.0.0.1.0.1.0.0.0.1.1.1;
+	(tmp,e)=ajoute<n>(r8bis,rep<8>(1).rep<24>(0),0);*)
 	(cpsra,r0a,r1a,r2a,r3a,r4a,r5a,r6a,r7a,r8a,r9a,r10a,r11a,r12a,r13a,r14a,r15a)=alu(op,cpsr,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
 	(cpsrb,r0b,r1b,r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b,r10b,r11b,r12b,r13b,r14b,r15b)=multiplication(op,cpsra,r0a,r1a,r2a,r3a,r4a,r5a,r6a,r7a,r8a,r9a,r10a,r11a,r12a,r13a,r14a,r15a);
 	(      r0c,r1c,r2c,r3c,r4c,r5c,r6c,r7c,r8c,r9c,r10c,r11c,r12c,r13c,r14c,r15c)=memoire(op,cpsrb,r0b,r1b,r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b,r10b,r11b,r12b,r13b,r14b,r15b); 
