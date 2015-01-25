@@ -23,8 +23,8 @@ type instr =
 
   |Clz of (cond * register (*Rd*) * register (*Rm*))
 
-  |Load_store_offset of (cond * bool (* U *) * bool (* L *) * register (*Rn*) * register (*Rn*) * int)
-  |Load_store_register of (cond * bool (* U *) * bool (* L *) * register (*Rn*) * register (*Rn*) * register (*Rm*))
+  |Load_store_offset of (cond * bool (* U *) * bool (* L *) * int (*post/pre-index *) * register (*Rn*) * register (*Rn*) * int)
+  |Load_store_register of (cond * bool (* U *) * bool (* L *) * int (*post/pre-index *)  * register (*Rn*) * register (*Rn*) * register (*Rm*))
 
   |Mul of (cond * bool (* S *) * register (*Rd*) * register (*Rm*) * register (*Rs*))
   |Mla of (cond * bool (* S *) * register (*Rd*) * register (*Rm*) * register (*Rs*) * register (*Rn*))

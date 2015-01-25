@@ -21,6 +21,7 @@ let immediate = chiffre+
 
 
 rule token = parse
+  | "@" { comment lexbuf }
   | " " { token lexbuf }
   | "\t" { token lexbuf }
   | "\n" { newline lexbuf ; token lexbuf }
@@ -30,6 +31,7 @@ rule token = parse
   | "LR" { REGISTER 14 }
   | "SP" { REGISTER 13 }
   | ',' { COMMA }
+  | '!' { EXCL }
   | '[' { CROCHET_O }
   | ']' { CROCHET_F }
   | '#' ('+')? (immediate as n) { IMM (int_of_string n) }
@@ -101,3 +103,9 @@ rule token = parse
   | "ROR" { ROR }
   | (alpha (alpha | chiffre)*) as s ":" { LABEL s }
   | (alpha (alpha | chiffre)*) as s { LABEL_B s }
+
+
+and comment = parse
+    |"\n" { token lexbuf }
+    |eof { EOF }
+    |_ {comment lexbuf }

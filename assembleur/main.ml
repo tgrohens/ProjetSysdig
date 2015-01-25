@@ -21,7 +21,9 @@ let print_prog oc label_list instr_list =
     res
   in
   let rec pow2 k =
-    if k mod 2 = 0 then let x = pow2 (k/2) in x*x
+    if k = 1 then 2
+    else if k = 0 then 1
+    else if k mod 2 = 0 then let x = pow2 (k/2) in x*x
     else let x = pow2 (k/2) in x*x*2
   in
   let print_unsigned_int n t =
@@ -39,7 +41,7 @@ let print_prog oc label_list instr_list =
 	let res = binary_of_int n 32 in
         let k = ref 0 in
 	let b = ref false in
-	while (!k < 7 && not(!b)) do
+	while (!k < 15 && not(!b)) do
 	  b := true;
 	  for i = 0 to 23 do
 	    if res.((i + 2*(!k)) mod 32) then b := false;
@@ -48,7 +50,7 @@ let print_prog oc label_list instr_list =
 	done;
 	if not(!b) then failwith "Valeur immédiate non-valide"
 	else (
-	  let res_k = binary_of_int (!k) 3 in
+	  let res_k = binary_of_int (!k) 4 in
 	  Array.iter print_bool res_k;
 	  for i = 24 to 31 do
 	    print_bool res.((i + 2*(!k)) mod 32);
@@ -153,9 +155,9 @@ let print_prog oc label_list instr_list =
 
     |Clz (c, rd, rm) -> (print_cond c ; fprintf oc "000101100000" ; print_register rd ; fprintf oc "00000001" ; print_register rm )
 
-    |Load_store_offset (c, u, l, rd, rn, n) -> (print_cond c ; fprintf oc "0101" ; print_bool u ; fprintf oc "00" ; print_bool l ; print_register rn ; print_register rd ; let res_n = binary_of_int n 12 in Array.iter print_bool res_n )
+    |Load_store_offset (c, u, l, i, rd, rn, n) -> (print_cond c ; fprintf oc "010" ; print_bool (i <= 0) ; print_bool u ; fprintf oc "0" ; print_bool (i = -1); print_bool l ; print_register rn ; print_register rd ; let res_n = binary_of_int n 12 in Array.iter print_bool res_n )
 
-    |Load_store_register (c, u, l, rd, rn, rm) -> (print_cond c ; fprintf oc "0111" ; print_bool u ; fprintf oc "00" ; print_bool l ; print_register rn ; print_register rd ; fprintf oc "00000000" ; print_register rm)
+    |Load_store_register (c, u, l, i, rd, rn, rm) -> (print_cond c ; fprintf oc "011" ; print_bool (i <= 0) ; print_bool u ; fprintf oc "0" ; print_bool (i = -1) ; print_bool l ; print_register rn ; print_register rd ; fprintf oc "00000000" ; print_register rm)
 
     |Mul(c, s, rd, rm, rs) -> (print_cond c ; fprintf oc "0000000" ; print_bool s ; print_register rd ; fprintf oc "0000" ; print_register rs ; fprintf oc "1001" ; print_register rm )
     |Mla(c, s, rd, rm, rs, rn) -> (print_cond c ; fprintf oc "0000001" ; print_bool s ; print_register rd ; print_register rn ; print_register rs ; fprintf oc "1001" ; print_register rm )

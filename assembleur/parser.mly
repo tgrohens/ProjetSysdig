@@ -13,7 +13,7 @@
 %token <Ast.register> REGISTER
 %token <int> IMM
 %token <int> QUICK_IMM
-%token COMMA 
+%token COMMA EXCL
 %token CROCHET_O CROCHET_F
 %token PLUS MINUS
 %token EOF
@@ -120,18 +120,49 @@ instruction:
   |CLZ c = option(cond) rd = REGISTER COMMA rm = REGISTER
        { incr l ; Clz ((match c with |None -> Al |Some c -> c), rd, rm) }
 
+
+(*Load no-index*)
   |LDR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA n = IMM CROCHET_F
-       { incr l ; Load_store_offset ((match c with |None -> Al |Some c -> c), (n >= 0), true, rd, rn, if n >= 0 then n else -n) }
+       { incr l ; Load_store_offset ((match c with |None -> Al |Some c -> c), (n >= 0), true, 0, rd, rn, if n >= 0 then n else -n) }
   |LDR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA PLUS rm = REGISTER CROCHET_F
-       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), true, true, rd, rn, rm) }
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), true, true, 0, rd, rn, rm) }
   |LDR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA MINUS rm = REGISTER CROCHET_F
-       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), false, true, rd, rn, rm) }
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), false, true, 0, rd, rn, rm) }
+(*Load pre-index*)
+  |LDR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA n = IMM CROCHET_F EXCL
+       { incr l ; Load_store_offset ((match c with |None -> Al |Some c -> c), (n >= 0), true, -1, rd, rn, if n >= 0 then n else -n) }
+  |LDR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA PLUS rm = REGISTER CROCHET_F EXCL
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), true, true, -1, rd, rn, rm) }
+  |LDR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA MINUS rm = REGISTER CROCHET_F EXCL
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), true, true, -1, rd, rn, rm) }
+(*Load post-index*)
+  |LDR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER CROCHET_F COMMA n = IMM
+       { incr l ; Load_store_offset ((match c with |None -> Al |Some c -> c), (n >= 0), true, 1, rd, rn, if n >= 0 then n else -n) }
+  |LDR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER CROCHET_F COMMA PLUS rm = REGISTER
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), true, true, 1, rd, rn, rm) }
+  |LDR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER CROCHET_F COMMA MINUS rm = REGISTER
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), true, true, 1, rd, rn, rm) }
+(*Store no-index*)
   |STR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA n = IMM CROCHET_F
-       { incr l ; Load_store_offset ((match c with |None -> Al |Some c -> c), (n >= 0), false, rd, rn, if n >= 0 then n else -n) }
+       { incr l ; Load_store_offset ((match c with |None -> Al |Some c -> c), (n >= 0), false, 0, rd, rn, if n >= 0 then n else -n) }
   |STR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA PLUS rm = REGISTER CROCHET_F
-       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), true, false, rd, rn, rm) }
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), true, false, 0, rd, rn, rm) }
   |STR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA MINUS rm = REGISTER CROCHET_F
-       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), false, false, rd, rn, rm) }
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), false, false, 0, rd, rn, rm) }
+(*Store pre-index*)
+  |STR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA n = IMM CROCHET_F EXCL
+       { incr l ; Load_store_offset ((match c with |None -> Al |Some c -> c), (n >= 0), false, -1, rd, rn, if n >= 0 then n else -n) }
+  |STR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA PLUS rm = REGISTER CROCHET_F EXCL
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), true, false, -1, rd, rn, rm) }
+  |STR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER COMMA MINUS rm = REGISTER CROCHET_F EXCL
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), false, false, -1, rd, rn, rm) }
+(*Store post-index*)
+  |STR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER CROCHET_F COMMA n = IMM
+       { incr l ; Load_store_offset ((match c with |None -> Al |Some c -> c), (n >= 0), false, -1, rd, rn, if n >= 0 then n else -n) }
+  |STR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER CROCHET_F COMMA PLUS rm = REGISTER
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), true, false, -1, rd, rn, rm) }
+  |STR c = option(cond) rd = REGISTER COMMA CROCHET_O rn = REGISTER CROCHET_F COMMA MINUS rm = REGISTER
+       { incr l ; Load_store_register ((match c with |None -> Al |Some c -> c), false, false, -1, rd, rn, rm) }
 
 
   |MUL c = option(cond) s = boption(S) rd = REGISTER COMMA rm = REGISTER COMMA rs = REGISTER
