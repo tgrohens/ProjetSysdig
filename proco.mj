@@ -88,7 +88,7 @@ end where
 
 mulaux<n,m>(a:[n],b:[m])=(s:[n+m]) where
 	if n=0 then
-		s=rep<m>(0)
+		s=rep<n+m>(0)
 	else
 		(s,r)=ajoute<n+m>(0.mulaux<n-1,m>(a[1..],b),AND<n+m>(rep<n+m>(a[0]),b.rep<n>(0)),0)
 	end if
