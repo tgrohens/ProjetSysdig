@@ -24,7 +24,7 @@
 (*Instructions*)
 %token ADC ADD AND BIC EOR ORR RSB RSC SBC SUB MOV MVN
 
-%token B BL CMP CMN TST TEQ
+%token B BL BX BLX CMP CMN TST TEQ
 
 %token SWI
 
@@ -99,8 +99,12 @@ instruction:
 
   |B c = option(cond) lab = LABEL_B
        { incr l ; Branch ((match c with |None -> Al |Some c -> c), false, lab) }
-  |BL c = option(cond) lab = LABEL
+  |BL c = option(cond) lab = LABEL_B
        { incr l ; Branch ((match c with |None -> Al |Some c -> c), true, lab) }
+  |BX c = option(cond) reg = REGISTER
+       { incr l ; Branch ((match c with |None -> Al |Some c -> c), false, reg) }
+  |BLX c = option(cond) reg = REGISTER
+       { incr l ; Branch ((match c with |None -> Al |Some c -> c), true, reg) }
   |CMP c = option(cond) rn = REGISTER COMMA shift = shifter
        { incr l ; Cmp ((match c with |None -> Al |Some c -> c), rn, shift) }
   |CMN c = option(cond) rn = REGISTER COMMA shift = shifter

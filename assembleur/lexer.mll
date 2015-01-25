@@ -56,6 +56,8 @@ rule token = parse
 
   | "B" { B }
   | "BL" { BL }
+  | "BX" { BX }
+  | "BLX" { BLX }
   | "CMP" { CMP }
   | "CMN" { CMN }
   | "TST" { TST }

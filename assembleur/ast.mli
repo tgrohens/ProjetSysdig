@@ -13,6 +13,7 @@ type instr =
   |Mvn of (cond * bool * register (*Rd*) * shifter)
 
   |Branch of (cond * bool (*L*) * label)
+  |Branch_reg of (cond * bool (*L*) * register)
   |Cmp of (cond * register * shifter)
   |Cmn of (cond * register * shifter)
   |Tst of (cond * register * shifter)
