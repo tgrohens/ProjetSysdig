@@ -120,7 +120,11 @@ decalD<d,n>(a:[n])=(s:[n-d],r:[d]) where
 end where
 
 Mux<n>(a,b:[n],c:[n])=(s:[n]) where
-	s=ORR<n>(AND<n>(rep<n>(not a),b),AND<n>(rep<n>(a),c))
+	if n=0 then
+		s=[]
+	else
+		s=mux(a,b[0],c[0]).Mux<n-1>(a,b[1..],c[1..]);
+	end if
 end where
 
 (* adressage de lecture (L) dans une table de registres *)
@@ -222,7 +226,8 @@ lslR(a:[n],r:[n],c)=(s:[n],nc) where
 	(r0,c0)=lsl(a[0..4],r,c);
 	grand=a[5]+a[6]+a[7];
 	s=Mux<n>(grand,r0,rep<n>(0));
-	nc=mux(grand,nc,mux(eq<8>(0.0.0.0.0.1.0.0,a[0..7]),0,r[0]));
+	eq32=eq<8>(0.0.0.0.0.1.0.0,a[0..7]);
+	nc=mux(grand,c0,mux(eq32,0,r[0])); 
 end where
 
 lsr(a:[5],r:[n])=(s:[n],c) where
@@ -241,7 +246,7 @@ lsrR(a:[n],r:[n],c)=(s:[n],nc) where
 	grand=a[5]+a[6]+a[7];
 	z=eq<8>(rep<8>(0),a[0..7]);
 	s=Mux<n>(grand,Mux<n>(z,r0,r),rep<n>(0));
-	nc=mux(grand,mux(z,nc,c),mux(eq<8>(0.0.0.0.0.1.0.0,a[0..7]),0,r[n-1]));
+	nc=mux(grand,mux(z,c0,c),mux(eq<8>(0.0.0.0.0.1.0.0,a[0..7]),0,r[n-1]));
 end where
 
 asr(a:[5],r:[n])=(s:[n],c) where
@@ -261,7 +266,7 @@ asrR(a:[n],r:[n],c)=(s:[n],nc) where
 	grand=a[5]+a[6]+a[7];
 	z=eq<8>(rep<8>(0),a[0..7]);
 	s=Mux<n>(grand,Mux<n>(z,r0,r),rep<n>(r[n-1]));
-	nc=mux(grand,mux(z,nc,c),r[n-1]);
+	nc=mux(grand,mux(z,c0,c),r[n-1]);
 end where
 
 ror(a:[5],r:[n],c)=(s:[n],nc) where
@@ -281,7 +286,7 @@ rorR(a:[n],r:[n],c)=(s:[n],nc) where
 	z=eq<8>(rep<8>(0),a[0..7]);
 	z2=eq<4>(rep<4>(0),a[0..3]);
 	s=Mux<n>(z2,r0,r);
-	nc=mux(z,mux(z2,nc,r[n-1]),c);
+	nc=mux(z,mux(z2,c0,r[n-1]),c);
 end where
 
 lecture(op:[n],c,r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[n],r9:[n],r10:[n],r11:[n],r12:[n],r13:[n],r14:[n],r15:[n])=(r:[n],nc) where
@@ -397,7 +402,7 @@ debug()=(e0:[n],e1:[n]) where
 	d=1.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.0;
 (*	(e0,e1)=Etable1<n>(1,d,a,b); *)
 	e1=a;
-	(e0,c)=asr(1.0.0.0.0,d);
+	(e0,c)=lslR(a,b,0);
 end where
 
 main()=() where
@@ -422,10 +427,30 @@ main()=() where
 	(suiv,suivc)=ajoute<n>(pc,0.0.1.rep<29>(0),0);
 	cpsr=registre<n>(cpsrb);
 
+
 	op=rom<n/2,n>(pc[0..(n/2)-1]);
 	(cpsra,r0a,r1a,r2a,r3a,r4a,r5a,r6a,r7a,r8a,r9a,r10a,r11a,r12a,r13a,r14a,r15a)=alu(op,cpsr,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
 	(cpsrb,r0b,r1b,r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b,r10b,r11b,r12b,r13b,r14b,r15b)=multiplication(op,cpsra,r0a,r1a,r2a,r3a,r4a,r5a,r6a,r7a,r8a,r9a,r10a,r11a,r12a,r13a,r14a,r15a);
-	(      r0c,r1c,r2c,r3c,r4c,r5c,r6c,r7c,r8c,r9c,r10c,r11c,r12c,r13c,r14c,r15c)=memoire(op,cpsrb,r0b,r1b,r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b,r10b,r11b,r12b,r13b,r14b,r15b);
+	(      r0c,r1c,r2c,r3c,r4c,r5c,r6c,r7c,r8c,r9c,r10c,r11c,r12c,r13c,r14c,r15c)=memoire(op,cpsrb,r0b,r1b,r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b,r10b,r11b,r12b,r13b,r14b,r15b); 
 	(r14d,r15d)=branche(op,cpsrb,r14c,r15c);
 	r15e=Mux<n>(eq<n>(r15d,r15),r15d,suiv);
+
+	cpsrb=cpsr;
+	r0c=r0;
+	r1c=r1;
+	r2c=r2;
+	r3c=r3;
+	r4c=r4;
+	r5c=r5;
+	r6c=r6;
+	r7c=r7;
+	r8c=r8;
+	r9c=r9;
+	r10c=r10;
+	r11c=r11;
+	r12c=r12;
+	r13c=r13;
+	r14c=r14;
+	r14d=r14;
+	r15e=r15;
 end where
