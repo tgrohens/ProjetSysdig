@@ -1,7 +1,7 @@
 all:
 	ocamlbuild main.native
-	mv main.native petit-ghc
+	mv main.native arm-as
 
 clean:
-	rm -f petit-ghc
+	rm -f arm-as
 	rm -rf _build
