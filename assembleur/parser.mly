@@ -102,9 +102,9 @@ instruction:
   |BL c = option(cond) lab = LABEL_B
        { incr l ; Branch ((match c with |None -> Al |Some c -> c), true, lab) }
   |BX c = option(cond) reg = REGISTER
-       { incr l ; Branch ((match c with |None -> Al |Some c -> c), false, reg) }
+       { incr l ; Branch_reg ((match c with |None -> Al |Some c -> c), false, reg) }
   |BLX c = option(cond) reg = REGISTER
-       { incr l ; Branch ((match c with |None -> Al |Some c -> c), true, reg) }
+       { incr l ; Branch_reg ((match c with |None -> Al |Some c -> c), true, reg) }
   |CMP c = option(cond) rn = REGISTER COMMA shift = shifter
        { incr l ; Cmp ((match c with |None -> Al |Some c -> c), rn, shift) }
   |CMN c = option(cond) rn = REGISTER COMMA shift = shifter
