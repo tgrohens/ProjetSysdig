@@ -42,6 +42,14 @@ neg<n>(a:[n])=(s:[n]) where
 	end if
 end where
 
+eq<n>(a:[n],b:[n])=(s) where
+	if n=0 then
+		s=1
+	else
+		s=(not (a[0]^b[0]))&eq<n-1>(a[1..],b[1..]);
+	end if
+end where
+
 add(a,b,c)=(s,r) where
 	r=((a^b) & c)+(a & b);
 	s=a^b^c
@@ -90,6 +98,8 @@ mul<n>(a:[n],b:[n])=(s:[n*2]) where
 	s=mulaux<n,n>(a,b);
 end where
 
+(* manipulation de chaînes *)
+
 decalG<r,n>(a:[n],b)=(s:[r+n]) where
 	if r=0 then
 		s=a
@@ -127,7 +137,7 @@ Ltable3<n>(a:[3],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n])=(s:[n]
 	s=Mux<n>(a[0],Ltable2<n>(a[1..],r0,r2,r4,r6),Ltable2<n>(a[1..],r1,r3,r5,r7))
 end where
 
-Ltable4<n>(a:[3],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[n],r9:[n],r10:[n],r11:[n],r12:[n],r13:[n],r14:[n],r15:[n])=(s:[n]) where
+Ltable4<n>(a:[4],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[n],r9:[n],r10:[n],r11:[n],r12:[n],r13:[n],r14:[n],r15:[n])=(s:[n]) where
 	s=Mux<n>(a[0],Ltable3<n>(a[1..],r0,r2,r4,r6,r8,r10,r12,r14),Ltable3<n>(a[1..],r1,r3,r5,r7,r9,r11,r13,r15))
 end where
 
@@ -190,10 +200,116 @@ registre<n>(a:[n])=(s:[n]) where
 	end if
 end where
 
+cond(op:[4],nzcv:[4])=(r) where
+	n=nzcv[0];
+	z=nzcv[1];
+	c=nzcv[2];
+	v=nzcv[3];
+	r=Ltable4<1>(op,z,not z,c,not c,n,not n,v,not v,c & (not z),(not c)+z,not n^v,n^v,(not z) & (not (n^v)),z+(n^v),1,0);
+end where
+
+lsl(a:[5],r:[n],c)=(s:[n],nc) where
+	r0=Mux<n+1>(a[0],r.0,decalG<1,n>(r[..(n-1)],0));
+	r1=Mux<n+1>(a[1],r0,decalG<2,n-1>(r0[..(n-2)],0));
+	r2=Mux<n+1>(a[2],r1,decalG<4,n-3>(r1[..(n-4)],0));
+	r3=Mux<n+1>(a[3],r2,decalG<8,n-7>(r2[..(n-8)],0));
+	r4=Mux<n+1>(a[4],r3,decalG<16,n-15>(r3[..(n-16)],0));
+	nc=mux(a[0]+a[1]+a[2]+a[3]+a[4],c,r4[n]);
+	s=r4[0..(n-1)];
+end where
+
+lslR(a:[n],r:[n],c)=(s:[n],nc) where
+	(r0,c0)=lsl(a[0..4],r,c);
+	grand=a[5]+a[6]+a[7];
+	s=Mux<n>(grand,r0,rep<n>(0));
+	nc=mux(grand,nc,mux(eq<8>(0.0.0.0.0.1.0.0,a[0..7]),0,r[0]));
+end where
+
+lsr(a:[5],r:[n])=(s:[n],c) where
+	r0=Mux<n+1>(a[0],0.r,r[0..].0);
+	r1=Mux<n+1>(a[1],r0,r0[2..].0.0);
+	r2=Mux<n+1>(a[2],r1,r1[4..].0.0.0.0);
+	r3=Mux<n+1>(a[3],r2,r2[8..].0.0.0.0.0.0.0.0);
+	r4=Mux<n+1>(a[4],r3,r3[16..].0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0);
+	z=a[0]+a[1]+a[2]+a[3]+a[4];
+	s=Mux<n>(z,rep<n>(0),r4[1..]);
+	c=mux(z,r[n-1],r4[0]);
+end where
+
+lsrR(a:[n],r:[n],c)=(s:[n],nc) where
+	(r0,c0)=lsr(a[0..4],r);
+	grand=a[5]+a[6]+a[7];
+	z=eq<8>(rep<8>(0),a[0..7]);
+	s=Mux<n>(grand,Mux<n>(z,r0,r),rep<n>(0));
+	nc=mux(grand,mux(z,nc,c),mux(eq<8>(0.0.0.0.0.1.0.0,a[0..7]),0,r[n-1]));
+end where
+
+asr(a:[5],r:[n])=(s:[n],c) where
+	b=r[n-1];
+	rb=Mux<n+1>(a[0],0.r,r[0..].b);
+	r1=Mux<n+1>(a[1],rb,rb[2..].b.b);
+	r2=Mux<n+1>(a[2],r1,r1[4..].b.b.b.b);
+	r3=Mux<n+1>(a[3],r2,r2[8..].b.b.b.b.b.b.b.b);
+	r4=Mux<n+1>(a[4],r3,r3[16..].b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b);
+	z=a[0]+a[1]+a[2]+a[3]+a[4];
+	s=Mux<n>(z,rep<n>(b),r4[1..]);
+	c=mux(z,r[n-1],r4[0]);
+end where
+
+asrR(a:[n],r:[n],c)=(s:[n],nc) where
+	(r0,c0)=asr(a[0..4],r);
+	grand=a[5]+a[6]+a[7];
+	z=eq<8>(rep<8>(0),a[0..7]);
+	s=Mux<n>(grand,Mux<n>(z,r0,r),rep<n>(r[n-1]));
+	nc=mux(grand,mux(z,nc,c),r[n-1]);
+end where
+
+ror(a:[5],r:[n],c)=(s:[n],nc) where
+	b=r[n-1];
+	rb=Mux<n>(a[0],r,r[1..].r[0]);
+	r1=Mux<n>(a[1],rb,rb[2..].rb[0..1]);
+	r2=Mux<n>(a[2],r1,r1[4..].r1[0..3]);
+	r3=Mux<n>(a[3],r2,r2[8..].r2[0..7]);
+	r4=Mux<n>(a[4],r3,r3[16..].r3[0..15]);
+	rrx=a[0]+a[1]+a[2]+a[3]+a[4];
+	s=Mux<n>(rrx,r[1..].c,r4);
+	nc=mux(rrx,r[0],r4[0]);
+end where
+
+rorR(a:[n],r:[n],c)=(s:[n],nc) where
+	(r0,c0)=ror(a[0..4],r,c);
+	z=eq<8>(rep<8>(0),a[0..7]);
+	z2=eq<4>(rep<4>(0),a[0..3]);
+	s=Mux<n>(z2,r0,r);
+	nc=mux(z,mux(z2,nc,r[n-1]),c);
+end where
+
+lecture(op:[n],c,r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[n],r9:[n],r10:[n],r11:[n],r12:[n],r13:[n],r14:[n],r15:[n])=(r:[n],nc) where
+	Rm=Ltable4<n>(op[0..3],r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
+	Rd=Ltable4<n>(op[8..11],r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
+	imm=op[25];
+	decal=op[4..6];
+	val=op[7..11];
+	(LSL,LSLc)=lsl(val,Rm,c);
+	(LSR,LSRc)=lsr(val,Rm);
+	(ASR,ASRc)=asr(val,Rm);
+	(ROR,RORc)=ror(val,Rm,c);
+	(LSLR,LSLRc)=lslR(Rd,Rm,c);
+	(LSRR,LSRRc)=lsrR(Rd,Rm,c);
+	(ASRR,ASRRc)=asrR(Rd,Rm,c);
+	(RORR,RORRc)=rorR(Rd,Rm,c);
+	(IMM,IMMc)=lsl(0.val[8..11],val[0..7].rep<24>(0),c);
+	rnc=Mux<n+1>(imm,Ltable3<n+1>(decal,LSL.LSLc,LSLR.LSLRc,LSR.LSRc,LSRR.LSRRc,ASR.ASRc,ASRR.ASRRc,ROR.RORc,RORR.RORRc),IMM.IMMc);
+	r=rnc[0..(n-1)];
+	nc=rnc[n];
+end where
+
 main()=(e0:[n],e1:[n]) where
 	a=0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;
 	b=1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;
 	c=0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;
-	d=1.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;
-	(e0,e1)=Etable1<n>(1,d,a,b);
+	d=1.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.0;
+(*	(e0,e1)=Etable1<n>(1,d,a,b); *)
+	e1=a;
+	(e0,c)=asr(1.0.0.0.0,d);
 end where
