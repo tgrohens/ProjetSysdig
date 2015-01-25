@@ -13,12 +13,20 @@ let print_prog oc label_list instr_list =
     let res = Array.make t false in
     let rec aux k n = 
       if k >= 0 then (
-	res.(k) <- (n mod 2 == 1);
+	res.(k) <- (n mod 2 = 1);
 	aux (k-1) (n/2)
       )
     in
     aux (t-1) n;
     res
+  in
+  let rec pow2 k =
+    if k mod 2 = 0 then let x = pow2 (k/2) in x*x
+    else let x = pow2 (k/2) in x*x*2
+  in
+  let print_unsigned_int n t =
+    if n >= 0 then (fprintf oc "0" ; let res_n = binary_of_int n (t-1) in Array.iter print_bool res_n)
+    else (fprintf oc "1" ; let res_n = binary_of_int ((pow2 t) + n) (t-1) in Array.iter print_bool res_n)
   in
   let print_register r =
     let res = binary_of_int r 4 in
@@ -115,11 +123,43 @@ let print_prog oc label_list instr_list =
     |Al -> fprintf oc "1110"
     |Nv -> fprintf oc "1111"
   in
-  let print_instr = function
+  let print_instr n_instr = function
     |Adc (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0101" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
+    |Add (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
+    |And (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
+    |Bic (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
+    |Eor (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
+    |Orr (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
+    |Rsb (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
+    |Rsc (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
+    |Sbc (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
+    |Sub (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
+
+    |Mov (c, s, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; fprintf oc "0000" ; print_register rd ; print_shifter shift )
+    |Mvn (c, s, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; fprintf oc "0000" ; print_register rd ; print_shifter shift )
+    
+    |Branch (c, l, label) -> ( print_cond c ; fprintf oc "101" ; print_bool l ; print_unsigned_int ((snd (List.find (fun x -> fst x = label) label_list)) - n_instr) 24 )
+          (* NON COMPLEEEEEEEEEEEET *)
+    |Cmp (c, rn, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "10101" ; print_register rn ; fprintf oc "0000" ; print_shifter shift )
+    |Cmn (c, rn, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "10111" ; print_register rn ; fprintf oc "0000" ; print_shifter shift )
+
+    |Swi (c, n) -> ( print_cond c ; fprintf oc "1111" ; let res = binary_of_int n 24 in Array.iter print_bool res)
+
+    |Clz (c, rd, rm) -> (print_cond c ; fprintf oc "000101100000" ; print_register rd ; fprintf oc "00000001" ; print_register rm )
+
+    |Load_store_offset (c, u, l, rd, rn, n) -> (print_cond c ; fprintf oc "0101" ; print_bool u ; fprintf oc "00" ; print_bool l ; print_register rn ; print_register rd ; let res_n = binary_of_int n 12 in Array.iter print_bool res_n )
+
+    |Load_store_register (c, u, l, rd, rn, rm) -> (print_cond c ; fprintf oc "0111" ; print_bool u ; fprintf oc "00" ; print_bool l ; print_register rn ; print_register rd ; fprintf oc "00000000" ; print_register rm)
+
+    |Mul(c, s, rd, rm, rs) -> (print_cond c ; fprintf oc "0000000" ; print_bool s ; print_register rd ; fprintf oc "0000" ; print_register rs ; fprintf oc "1001" ; print_register rm )
+    |Mla(c, s, rd, rm, rs, rn) -> (print_cond c ; fprintf oc "0000001" ; print_bool s ; print_register rd ; print_register rn ; print_register rs ; fprintf oc "1001" ; print_register rm )
+
+    |Mrs (c, r, rd) -> (print_cond c ; fprintf oc "00010" ; print_bool r ; fprintf oc "000000" ; print_register rd ; fprintf oc "000000000000" )
+
+
     |_ -> assert false
   in
-  List.iter print_instr instr_list
+  List.iteri print_instr instr_list
   
 
 

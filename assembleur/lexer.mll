@@ -15,7 +15,7 @@
 }
 
 
-let alpha = ['a'-'z' 'A'-'Z']
+let alpha = ['a'-'z']
 let chiffre = ['0'-'9']
 let immediate = chiffre+
 
@@ -27,15 +27,16 @@ rule token = parse
   | "R1" { REGISTER 1 }
   | 'R' ((chiffre | '1' ['0'-'5']) as c) { REGISTER (int_of_string c) }
   | eof { EOF }
-  | ":" { COLON }
   | "PC" { REGISTER 15 }
   | "LR" { REGISTER 14 }
   | "SP" { REGISTER 13 }
   | ',' { COMMA }
+  | ':' { COLON }
   | '[' { CROCHET_O }
   | ']' { CROCHET_F }
   | '#' ('+')? (immediate as n) { IMM (int_of_string n) }
   | '#' '-' (immediate as n) { IMM (-(int_of_string n)) }
+  | immediate as n { QUICK_IMM (int_of_string n) }
   | '+' { PLUS }
   | '-' { MINUS }
   | "CPSR" { CPSR }
@@ -96,4 +97,5 @@ rule token = parse
   | "LSR" { LSR }
   | "ASR" { ASR }
   | "ROR" { ROR }
-  | (alpha (alpha | chiffre)*) as s { LABEL s }
+  | (alpha (alpha | chiffre)*) as s ":" { LABEL s }
+  | (alpha (alpha | chiffre)*) as s { LABEL_B s }
