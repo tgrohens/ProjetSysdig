@@ -1,206 +1,168 @@
-_bissextile:
-	str lr, [sp, #-4]
-	str r7, [sp, #-4]	
-	mov	r7, sp
-	sub	sp, sp, #8
-	mov	r1, #4
-	bl	___modsi3
-	cmp	r0, #0
-	beq	LBB0_2
+div:
+	MOV R2, R0
+	MOV R0, #0
+loop:
+	CMP R2 R1
+	ADDGE R0, R0, #1
+	SUBGE R2, R2, R1
+	BGE loop
+	B LR
 
-	mov	r0, #0
-	str	r0, [sp, #4]
-	b	LBB0_6
-LBB0_2:
-	mov	r1, #100
-	ldr	r0, [sp]
-	bl	___modsi3
-	cmp	r0, #0
-	bne	LBB0_5
+	
+mod:
+	STR LR, [SP]
+	SUB SP, SP, #4
+	STR R0, [SP]
+	SUB SP, SP, #4
 
-	mov	r1, #400
-	ldr	r0, [sp]
-	bl	___modsi3
-	cmp	r0, #0
-	beq	LBB0_5
+	BL div
 
-	mov	r0, #0
-	str	r0, [sp, #4]
-	b	LBB0_6
-LBB0_5:
-	mov	r0, #1
-	str	r0, [sp, #4]
-LBB0_6:
-	ldr	r0, [sp, #4]
-	mov	sp, r7
-	ldr r7, [sp], #4
-	ldr lr, [sp], #4
-	b	lr
+	MUL R2, R0, R1
+	LDR R0, [SP], #4
+	SUB R0, R0, R2
+	
+	LDR PC, [SP], #4
 
 
-_main:
-	str lr, [sp, #-4]
-	str r7, [sp, #-4]
-	mov	r7, sp
-	sub	sp, sp, #32
-	mov	r0, #0
-	str	r0, [r7, #-4]
-	str	r0, [r7, #-8]
-	str	r0, [r7, #-12]
-	str	r0, [sp, #16]
-	str	r0, [sp, #12]
-	str	r0, [sp, #8]
-	str	r0, [sp, #4]
-LBB1_1:
-	mov	r1, #60
-	ldr	r0, [r7, #-8]
-	add	r0, r0, #1
-	str	r0, [r7, #-8]
-	ldr	r0, [r7, #-8]
-	bl	___modsi3
-	cmp	r0, #0
-	bne	LBB1_3
+bis:
+	STR LR, [SP]
+	SUB SP, SP, #4
+	MOV R3, R0
+	
+	TST R0, #3 @ R0 % 4 == 0 ?
+	BNE non
+	
+	MOV R1, #100 @ R0 % 100 != 0 ?
+	BL mod
+	CMP R0, #0
+	BNE oui
 
-	ldr	r0, [r7, #-12]
-	add	r0, r0, #1
-	str	r0, [r7, #-12]
-LBB1_3:
-	ldr	r0, [r7, #-12]
-	cmp	r0, #60
-	bne	LBB1_5
+	MOV R0, R3 @ R0 % 400 == 0 ?
+	MOV R1, #400
+	BL mod
+	CMP R0, #0
+	BNE non
 
-	mov	r0, #0
-	str	r0, [r7, #-12]
-	ldr	r0, [sp, #16]
-	add	r0, r0, #1
-	str	r0, [sp, #16]
-LBB1_5:
-	ldr	r0, [sp, #16]
-	cmp	r0, #24
-	bne	LBB1_7
+oui:
+	MOV R0, #1
+	LDR PC, [SP], #4
+non:
+	MOV R0, #0
+	LDR PC, [SP], #4
 
-	mov	r0, #0
-	str	r0, [sp, #16]
-	ldr	r0, [sp, #12]
-	add	r0, r0, #1
-	str	r0, [sp, #12]
-LBB1_7:
-	ldr	r0, [sp, #8]
-	cmp	r0, #0
-	bne	LBB1_9
+clock:
+	ADD R4, R4,	#1 @R4 : secondes
+	CMP R0, #60
+	BNE fin
+	MOV R4, #0
 
-	ldr	r0, [sp, #12]
-	cmp	r0, #32
-	beq	LBB1_31
-LBB1_9:
-	ldr	r0, [sp, #8]
-	cmp	r0, #1
-	bne	LBB1_11
+	ADD R5, R5, #1 @R5 : minutes (modulo 60)
+	CMP R5, #60
+	BNE fin
+	MOV R5, #0
 
-	ldr	r0, [sp, #12]
-	ldr	r1, [sp, #4]
-	str	r0, [sp]
-	mov	r0, r1
-	bl	_bissextile
-	add	r0, r0, #29
-	ldr	r1, [sp]
-	cmp	r1, r0
-	beq	LBB1_31
-LBB1_11:
-	ldr	r0, [sp, #8]
-	cmp	r0, #2
-	bne	LBB1_13
+	ADD R6, R6, #1 @R6 : heures (modulo 24)
+	CMP R0, #24
+	BNE fin
+	MOV R6, #0
 
-	ldr	r0, [sp, #12]
-	cmp	r0, #32
-	beq	LBB1_31
-LBB1_13:
-	ldr	r0, [sp, #8]
-	cmp	r0, #3
-	bne	LBB1_15
+	ADD R7, R7, #1 @R7 : jours (le cas chimoist)
+	CMP R8, #0
+	BNE fev
+	CMP R7, #31
+	BNE fin
+fev:
+	CMP R8, #1
+	BNE mar
+	MOV R0, R9
+	BL bis
+	ADD R0, R0, #28
+	CMP R7, R0
+	BNE fin
+	MOV R7, #0
+	B mois
+mar:
+	CMP R8, #2
+	BNE avr
+	CMP R7, #31
+	BNE fin
+	MOV R7, #0
+	B mois
+avr:
+	CMP R8, #3
+	BNE mai
+	CMP R7, #30
+	BNE fin
+	MOV R7, #0
+	B mois
+mai:
+	CMP R8, #4
+	BNE juin
+	CMP R7, #31
+	BNE fin
+	MOV R7, #0
+	B mois
+juin:
+	CMP R8, #5
+	BNE juil
+	CMP R7, #30
+	BNE fin
+	MOV R7, #0
+	B mois
+juil:
+	CMP R8, #6
+	BNE aout
+	CMP R7, #31
+	BNE fin
+	MOV R7, #0
+	B mois
+aout:
+	CMP R8,	#7
+	BNE sep
+	CMP R7, #31
+	BNE fin
+	MOV R7, #0
+	B mois
+sep:
+	CMP R8, #8
+	BNE oct
+	CMP R7, #30
+	BNE fin
+	MOV R7, #0
+	B mois
+oct:
+	CMP R8, #9
+	BNE nov
+	CMP R7, #31
+	BNE fin
+	MOV R7, #0
+	B mois
+nov:
+	CMP R8, #10
+	BNE nov
+	CMP R7, #30
+	BNE fin
+	MOV R7, #0
+	B mois
+dec:
+	CMP R7, #31
+	BNE fin
+	MOV R7, #0
 
-	ldr	r0, [sp, #12]
-	cmp	r0, #31
-	beq	LBB1_31
-LBB1_15:
-	ldr	r0, [sp, #8]
-	cmp	r0, #4
-	bne	LBB1_17
+mois:
+	ADD R8, R8, #1
+	CMP R8, #12 
+	BNE fin
+	MOV R8, #0
 
-	ldr	r0, [sp, #12]
-	cmp	r0, #32
-	beq	LBB1_31
-LBB1_17:
-	ldr	r0, [sp, #8]
-	cmp	r0, #5
-	bne	LBB1_19
+	ADD R9, R9, #1
 
-	ldr	r0, [sp, #12]
-	cmp	r0, #31
-	beq	LBB1_31
-LBB1_19:
-	ldr	r0, [sp, #8]
-	cmp	r0, #6
-	bne	LBB1_21
-
-	ldr	r0, [sp, #12]
-	cmp	r0, #32
-	beq	LBB1_31
-LBB1_21:
-	ldr	r0, [sp, #8]
-	cmp	r0, #7
-	bne	LBB1_23
-
-	ldr	r0, [sp, #12]
-	cmp	r0, #32
-	beq	LBB1_31
-LBB1_23:
-	ldr	r0, [sp, #8]
-	cmp	r0, #8
-	bne	LBB1_25
-
-	ldr	r0, [sp, #12]
-	cmp	r0, #31
-	beq	LBB1_31
-LBB1_25:
-	ldr	r0, [sp, #8]
-	cmp	r0, #9
-	bne	LBB1_27
-
-	ldr	r0, [sp, #12]
-	cmp	r0, #32
-	beq	LBB1_31
-LBB1_27:
-	ldr	r0, [sp, #8]
-	cmp	r0, #10
-	bne	LBB1_29
-
-	ldr	r0, [sp, #12]
-	cmp	r0, #31
-	beq	LBB1_31
-LBB1_29:
-	ldr	r0, [sp, #8]
-	cmp	r0, #11
-	bne	LBB1_32
-
-	ldr	r0, [sp, #12]
-	cmp	r0, #32
-	bne	LBB1_32
-LBB1_31:
-	mov	r0, #0
-	str	r0, [sp, #12]
-	ldr	r0, [sp, #8]
-	add	r0, r0, #1
-	str	r0, [sp, #8]
-LBB1_32:
-	ldr	r0, [sp, #8]
-	cmp	r0, #12
-	bne	LBB1_34
-
-	mov	r0, #0
-	str	r0, [sp, #8]
-	ldr	r0, [sp, #4]
-	add	r0, r0, #1
-	str	r0, [sp, #4]
-LBB1_34:
-	b	LBB1_1
+fin:
+	ADD R0, R4, R5, LSL #8
+	ADD R1, R6, R7, LSL #8
+	ADD R0, R0, R1, LSL #16
+	MOV R1, #0
+	STR R0, [R1]
+	ADD R0, R8, R9, LSL #8
+	STR R0, [R1, #4]
+	B clock
