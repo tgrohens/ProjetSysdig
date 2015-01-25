@@ -298,7 +298,8 @@ lecture(op:[n],c,r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[n],
 	(LSRR,LSRRc)=lsrR(Rd,Rm,c);
 	(ASRR,ASRRc)=asrR(Rd,Rm,c);
 	(RORR,RORRc)=rorR(Rd,Rm,c);
-	(IMM,IMMc)=lsl(0.op[8..11],op[0..7].rep<24>(0),c);
+	(IMM,IMMctruc)=lsl(0.op[8..11],op[0..7].rep<24>(0),c);
+	IMMc=mux(eq<4>(op[8..11],rep<4>(0)),IMM[n-1],c);
 	rnc=Mux<n+1>(imm,Ltable3<n+1>(decal,LSL.LSLc,LSLR.LSLRc,LSR.LSRc,LSRR.LSRRc,ASR.ASRc,ASRR.ASRRc,ROR.RORc,RORR.RORRc),IMM.IMMc);
 	r=rnc[0..(n-1)];
 	nc=rnc[n];
@@ -341,13 +342,20 @@ alu(op:[n],cpsr:[n],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[
 	MOV=Rs.Rsc.v;
 	BICv=BIC<n>(Rs,Rn).Rsc.v;
 	MVN=negRs.Rsc.v;
-	res=Ltable4<n+2>(op[21..24],ANDv,EORv,SUB,RSB,ADD,ADC,SBC,RSC,TST,TEQ,CMP,CMN,ORRv,MOV,BICv,MVN); 
-	exec=cond(op[28..31],cpsr[28..31]);
+	res=Ltable4<n+2>(op[21..24],ANDv,EORv,SUB,RSB,ADD,ADC,SBC,RSC,TST,TEQ,CMP,CMN,ORRv,MOV,BICv,MVN);
+	exec=cond(op[28..31],cpsr[28..31]) & (not op[25]) & (not op[26]) & (not op[27]);
 	R=Mux<n>((not op[23])&op[24]&exec,res[0..(n-1)],Rd);
 	(sr0,sr1,sr2,sr3,sr4,sr5,sr6,sr7,sr8,sr9,sr10,sr11,sr12,sr13,sr14,sr15)=Etable4<n>(op[12..15],R,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
 	ncpsr=cpsr[0..27].Mux<4>(op[20]&exec,cpsr[28..31],res[n+1].res[n].eq<n>(R,rep<n>(0)).R[n-1]);
 end where
 
+branche(op:[n],cpsr:[n],r14:[n],r15:[n])=(sr14:[n],sr15:[n]) where
+	exec=cond(op[28..31],cpsr[28..31]) & (op[25]) & (not op[26]) & (op[27]);
+	(pc,c)=ajoute<n>(r15,0.0.op[0..23].rep<6>(op[23]),0);
+	(pc2,c2)=ajoute<n>(r15,0.0.1.rep<29>(0),0);
+	sr15=Mux<n>(exec,r15,pc);
+	sr14=Mux<n>(exec&op[24],r14,pc2);
+end where
 
 main()=(e0:[n],e1:[n]) where
 	a=0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;
