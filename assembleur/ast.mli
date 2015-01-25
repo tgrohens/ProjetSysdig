@@ -15,6 +15,8 @@ type instr =
   |Branch of (cond * bool (*L*) * label)
   |Cmp of (cond * register * shifter)
   |Cmn of (cond * register * shifter)
+  |Tst of (cond * register * shifter)
+  |Teq of (cond * register * shifter)
 
   |Swi of (cond * int)
 

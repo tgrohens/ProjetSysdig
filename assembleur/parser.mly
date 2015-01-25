@@ -13,7 +13,7 @@
 %token <Ast.register> REGISTER
 %token <int> IMM
 %token <int> QUICK_IMM
-%token COMMA COLON
+%token COMMA 
 %token CROCHET_O CROCHET_F
 %token PLUS MINUS
 %token EOF
@@ -24,7 +24,7 @@
 (*Instructions*)
 %token ADC ADD AND BIC EOR ORR RSB RSC SBC SUB MOV MVN
 
-%token B BL CMP CMN
+%token B BL CMP CMN TST TEQ
 
 %token SWI
 
@@ -105,6 +105,10 @@ instruction:
        { incr l ; Cmp ((match c with |None -> Al |Some c -> c), rn, shift) }
   |CMN c = option(cond) rn = REGISTER COMMA shift = shifter
        { incr l ; Cmn ((match c with |None -> Al |Some c -> c), rn, shift) }
+  |TST c = option(cond) rn = REGISTER COMMA shift = shifter
+       { incr l ; Tst ((match c with |None -> Al |Some c -> c), rn, shift) }
+  |TEQ c = option(cond) rn = REGISTER COMMA shift = shifter
+       { incr l ; Teq ((match c with |None -> Al |Some c -> c), rn, shift) }
 
   |SWI c = option(cond) n = QUICK_IMM
        { incr l ; Swi ((match c with |None -> Al |Some c -> c), n) }

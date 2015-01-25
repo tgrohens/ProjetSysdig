@@ -139,9 +139,14 @@ let print_prog oc label_list instr_list =
     |Mvn (c, s, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; fprintf oc "0000" ; print_register rd ; print_shifter shift )
     
     |Branch (c, l, label) -> ( print_cond c ; fprintf oc "101" ; print_bool l ; print_unsigned_int ((snd (List.find (fun x -> fst x = label) label_list)) - n_instr) 24 )
-          (* NON COMPLEEEEEEEEEEEET *)
     |Cmp (c, rn, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "10101" ; print_register rn ; fprintf oc "0000" ; print_shifter shift )
+
     |Cmn (c, rn, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "10111" ; print_register rn ; fprintf oc "0000" ; print_shifter shift )
+
+    |Teq (c, rn, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "10011" ; print_register rn ; fprintf oc "0000" ; print_shifter shift )
+
+    |Tst (c, rn, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "10001" ; print_register rn ; fprintf oc "0000" ; print_shifter shift )
+
 
     |Swi (c, n) -> ( print_cond c ; fprintf oc "1111" ; let res = binary_of_int n 24 in Array.iter print_bool res)
 
