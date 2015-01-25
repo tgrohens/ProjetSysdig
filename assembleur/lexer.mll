@@ -24,14 +24,12 @@ rule token = parse
   | " " { token lexbuf }
   | "\t" { token lexbuf }
   | "\n" { newline lexbuf ; token lexbuf }
-  | "R1" { REGISTER 1 }
   | 'R' ((chiffre | '1' ['0'-'5']) as c) { REGISTER (int_of_string c) }
   | eof { EOF }
   | "PC" { REGISTER 15 }
   | "LR" { REGISTER 14 }
   | "SP" { REGISTER 13 }
   | ',' { COMMA }
-  | ':' { COLON }
   | '[' { CROCHET_O }
   | ']' { CROCHET_F }
   | '#' ('+')? (immediate as n) { IMM (int_of_string n) }
