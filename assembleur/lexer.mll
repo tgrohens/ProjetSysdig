@@ -15,7 +15,7 @@
 }
 
 
-let alpha = ['a'-'z']
+let alpha = ['a'-'z' '_']
 let chiffre = ['0'-'9']
 let immediate = chiffre+
 
