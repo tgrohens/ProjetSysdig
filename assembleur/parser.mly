@@ -12,12 +12,13 @@
 /* Définition des token */
 %token <Ast.register> REGISTER
 %token <int> IMM
-%token COMMA
-%token COLON
+%token <int> QUICK_IMM
+%token COMMA COLON
 %token CROCHET_O CROCHET_F
 %token PLUS MINUS
 %token EOF
 %token <Ast.label> LABEL
+%token <Ast.label> LABEL_B
 %token CPSR SPSR
 
 (*Instructions*)
@@ -64,7 +65,7 @@ file:
 
 
 label:
-  |s = LABEL COLON
+  |s = LABEL
    { (s, !l) }
 ;
 
@@ -96,7 +97,7 @@ instruction:
        { incr l ; Mvn ((match c with |None -> Al |Some c -> c), s, rd, shift) }
 
 
-  |B c = option(cond) lab = LABEL
+  |B c = option(cond) lab = LABEL_B
        { incr l ; Branch ((match c with |None -> Al |Some c -> c), false, lab) }
   |BL c = option(cond) lab = LABEL
        { incr l ; Branch ((match c with |None -> Al |Some c -> c), true, lab) }
@@ -105,7 +106,7 @@ instruction:
   |CMN c = option(cond) rn = REGISTER COMMA shift = shifter
        { incr l ; Cmn ((match c with |None -> Al |Some c -> c), rn, shift) }
 
-  |SWI c = option(cond) n = IMM
+  |SWI c = option(cond) n = QUICK_IMM
        { incr l ; Swi ((match c with |None -> Al |Some c -> c), n) }
 
   |CLZ c = option(cond) rd = REGISTER COMMA rm = REGISTER
