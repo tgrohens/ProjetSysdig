@@ -49,7 +49,7 @@ let rec lit s=
 let init p= Array.iter (fun t->Hashtbl.reset t) valeurs;
         Hashtbl.reset memoire;
         Env.iter (fun id t->Hashtbl.add valeurs.(1) id (creer false (taille t))) p.p_vars;
-        Hashtbl.replace valeurs.(1) "r13" (creer_ent ((1 lsl 16)-4) 16); (* SP = 2^16-4 *)
+        Hashtbl.replace valeurs.(1) "r13" (creer_ent ((1 lsl 16)-4) 32); (* SP = 2^16-4 *)
         let creerRam (id,eq)=match eq with
         | Eram(addr,taille,_,_,_,_) -> Hashtbl.add memoire id (Array.init (1 lsl addr) (fun _ -> creer false taille))
         | Erom(addr,taille,_) -> Hashtbl.add memoire id (Array.init (1 lsl addr) (fun i -> lit taille))
