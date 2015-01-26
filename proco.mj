@@ -355,7 +355,7 @@ alu(op:[n],cpsr:[n],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[
 	MOV=Rs.Rsc.v;
 	BICv=BIC<n>(Rs,Rn).Rsc.v;
 	MVN=negRs.Rsc.v;
-	res=Ltable4<n+2>((op[21..24]),ANDv,EORv,SUB,RSB,ADD,ADC,SBC,RSC,TST,TEQ,CMP,CMN,ORRv,MOV,BICv,MVN);
+	res=Ltable4<n+2>(op[21..24],ANDv,EORv,SUB,RSB,ADD,ADC,SBC,RSC,TST,TEQ,CMP,CMN,ORRv,MOV,BICv,MVN);
 	deb=op[21..24].rep<28>(0);
 	exec=cond(op[28..31],cpsr[28..31]) & (not op[26]) & (not op[27]) & (not ((not op[25]) & op[4] & op[7]));
 	R=Mux<n>((op[23]+(not op[24]))&exec,Rd,res[0..(n-1)]);
