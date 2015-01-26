@@ -137,8 +137,8 @@ let print_prog oc label_list instr_list =
     |Sbc (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0110" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
     |Sub (c, s, rn, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0010" ; print_bool s ; print_register rn ; print_register rd ; print_shifter shift )
 
-    |Mov (c, s, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; fprintf oc "0000" ; print_register rd ; print_shifter shift )
-    |Mvn (c, s, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "0100" ; print_bool s ; fprintf oc "0000" ; print_register rd ; print_shifter shift )
+    |Mov (c, s, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "1101" ; print_bool s ; fprintf oc "0000" ; print_register rd ; print_shifter shift )
+    |Mvn (c, s, rd, shift) -> ( print_cond c ; fprintf oc (match shift with |Imm _ -> "001" |_ -> "000") ; fprintf oc "1111" ; print_bool s ; fprintf oc "0000" ; print_register rd ; print_shifter shift )
     
     |Branch (c, l, label) -> ( print_cond c ; fprintf oc "101" ; print_bool l ; print_unsigned_int ((snd (List.find (fun x -> fst x = label) label_list)) - n_instr) 24 )
     |Branch_reg (c, l, r) -> ( print_cond c ; fprintf oc "0001001000000000000000" ; print_bool l ; fprintf oc "1" ; print_register r )
