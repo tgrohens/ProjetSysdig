@@ -1,3 +1,6 @@
+main:
+	MOV SP, #65536
+	SUB SP, SP, #4
 clock:
 	ADD R4, R4,	#1 @R4 : secondes
 	CMP R4, #60
