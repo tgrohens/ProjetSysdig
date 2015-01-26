@@ -11,8 +11,11 @@ ARMv3.
 
 # Compilation et exécution
 
-- Exécuter ./COMPIL.sh dans sim
-- Exécuter make dans assembleur
-- Compiler proco.mj en proco.net avec mjc
-- Assembler la montre avec ./assembleur/arm-as clock.s
-- Exécuter ./sim/netlist_sim.native proco.net < clock.byte
+Il suffit d'exécuter run.sh dans le répertoire principal, en ayant la bonne
+version de mjc.native (chez nous, le processeur ne compilait pas avec
+mjc.byte). Pour nettoyer le répertoire, il suffit d'exécuter clean.sh.
+
+# Options
+
+Par défaut, le simulateur tourne à pleine vitesse. Pour simuler le temps réel,
+il faut passer l'argument --real-time à netlist_sim.native. 
