@@ -14,6 +14,9 @@ let ai ram n = gen ram.(n)
 let affiche_temps () =
         Hashtbl.iter (fun s ram -> if s.[0]='l' then Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n" (ai ram 3) (ai ram 4) (ai ram 7 + (1 lsl 8)*(ai ram 6) + (1 lsl 16)+(ai ram 5)) (ai ram 2) (ai ram 1) (ai ram 0) ) memoire
 
+let affiche_ram () = 
+        Hashtbl.iter (fun s ram -> if s.[0]='l' then Printf.printf "0:%.2d 1:%.2d 2:%.2d 3:%.2d 4:%.2d 5:%.2d 6:%.2d 7:%.2d\n"
+        (ai ram 0) (ai ram 1) (ai ram 2) (ai ram 3) (ai ram 4) (ai ram 5) (ai ram 6) (ai ram 7) ) memoire
 
 let taille=function
         | TBit -> 1
@@ -22,6 +25,10 @@ let taille=function
 let rec creer a=function
         | 0 -> []
         | n -> a::(creer a (n-1))
+
+let rec creer_ent n = function
+    | 0 -> []
+    | p -> (if n mod 2 = 1 then true else false)::(creer_ent (n/2) (p-1))
 
 let rec affliste v=match v with [] ->print_newline()
         | t::q -> if t then print_string "1" else print_string "0";affliste q
@@ -42,6 +49,7 @@ let rec lit s=
 let init p= Array.iter (fun t->Hashtbl.reset t) valeurs;
         Hashtbl.reset memoire;
         Env.iter (fun id t->Hashtbl.add valeurs.(1) id (creer false (taille t))) p.p_vars;
+        Hashtbl.replace valeurs.(1) "r13" (creer_ent ((1 lsl 16)-4) 16); (* SP = 2^16-4 *)
         let creerRam (id,eq)=match eq with
         | Eram(addr,taille,_,_,_,_) -> Hashtbl.add memoire id (Array.init (1 lsl addr) (fun _ -> creer false taille))
         | Erom(addr,taille,_) -> Hashtbl.add memoire id (Array.init (1 lsl addr) (fun i -> lit taille))
@@ -102,7 +110,7 @@ let simule p n rt =match n with
 (*        let temps = Sys.time () in *)
 		execute p (!it mod 2); (* avance d'un cycle *)
 		if gen (Hashtbl.find valeurs.(!it mod 2) "r10c") = 1 then
-                        affiche_temps ();
+                        affiche_ram ();
 (*        if rt then (while (Sys.time () -. temps < 1.) do () done)  *)
         incr it;
 	done
