@@ -12,10 +12,10 @@ let rec gen = function
 let ai ram n = gen ram.(n)
 
 let affiche_temps () =
-        Hashtbl.iter (fun s ram -> if s.[0]='l' then Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n" (ai ram 3) (ai ram 4) (ai ram 7 + (1 lsl 8)*(ai ram 6) + (1 lsl 16)+(ai ram 5)) (ai ram 2) (ai ram 1) (ai ram 0) ) memoire
+        Hashtbl.iter (fun s ram -> if s.[0]='l' then Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n%!" (ai ram 3) (ai ram 4) (ai ram 7 + (1 lsl 8)*(ai ram 6) + (1 lsl 16)+(ai ram 5)) (ai ram 2) (ai ram 1) (ai ram 0) ) memoire
 
 let affiche_ram () = 
-        Hashtbl.iter (fun s ram -> if s.[0]='l' then Printf.printf "0:%.2d 1:%.2d 2:%.2d 3:%.2d 4:%.2d 5:%.2d 6:%.2d 7:%.2d\n"
+        Hashtbl.iter (fun s ram -> if s.[0]='l' then Printf.printf "0:%.2d 1:%.2d 2:%.2d 3:%.2d 4:%.2d 5:%.2d 6:%.2d 7:%.2d\n%!"
         (ai ram 0) (ai ram 1) (ai ram 2) (ai ram 3) (ai ram 4) (ai ram 5) (ai ram 6) (ai ram 7) ) memoire
 
 let taille=function
