@@ -413,7 +413,11 @@ debug()=(e0:[n],e1:[n]) where
 	(e0,c)=lslR(a,b,0);
 end where
 
+<<<<<<< HEAD
 main()=(r10c:[n](*, r0c:[n],r1c:[n],r2c:[n],r3c:[n],r4c:[n],r5c:[n],r6c:[n],r7c:[n],r8c:[n],r9c:[n],r10c:[n],r11c:[n],r12c:[n],r13c:[n],r14d:[n],r15e:[n],pc:[n],cpsrb:[n],op:[n],exec,deb:[n]*)) where
+=======
+main()=(r10c:[n],r0c:[n],r1c:[n],r2c:[n],r3c:[n],r4c:[n],r5c:[n],r6c:[n],r7c:[n],r8c:[n],r9c:[n],r10c:[n],r11c:[n],r12c:[n],r13c:[n],r14d:[n],r15e:[n],pc:[n],cpsrb:[n],op:[n],exec,deb:[n] ) where
+>>>>>>> 3f1c46ab5fb1255f14ed9b8bbf5ba4669de5d08c
 	r0=registre<n>(r0c);
 	r1=registre<n>(r1c);
 	r2=registre<n>(r2c);
