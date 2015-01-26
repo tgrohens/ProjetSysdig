@@ -123,7 +123,7 @@ fin:
 	ADD R0, R0, R1, LSL #16
 	MOV R1, #0
 	STR R0, [R1, #0]
-	ADD R0, R8, R9, LSL #8
+	ADD R0, R8, R9, LSL #16 @ l'an tient sur 16 bits, on décale donc de 16
 	STR R0, [R1, #4]
 	MOV R10, #1 @pour signifier au simulateur qu'on a fini le calcul de la seconde
 	MOV R10, #0
