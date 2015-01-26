@@ -1,57 +1,6 @@
-div:
-	MOV R2, R0
-	MOV R0, #0
-loop:
-	CMP R2, R1
-	ADDGE R0, R0, #1
-	SUBGE R2, R2, R1
-	BGE loop
-	MOV PC, LR
-
-mod:
-	STR LR, [SP, #0]
-	SUB SP, SP, #4
-	STR R0, [SP, #0]
-	SUB SP, SP, #4
-
-	BL div
-
-	MUL R2, R0, R1
-	LDR R0, [SP], #4
-	SUB R0, R0, R2
-	
-	LDR PC, [SP], #4
-
-
-bis:
-	STR LR, [SP, #0]
-	SUB SP, SP, #4
-	MOV R3, R0
-	
-	TST R0, #3 @ R0 % 4 == 0 ?
-	BNE non
-	
-	MOV R1, #100 @ R0 % 100 != 0 ?
-	BL mod
-	CMP R0, #0
-	BNE oui
-
-	MOV R0, R3 @ R0 % 400 == 0 ?
-	MOV R1, #400
-	BL mod
-	CMP R0, #0
-	BNE non
-
-oui:
-	MOV R0, #1
-	LDR PC, [SP], #4
-non:
-	MOV R0, #0
-	LDR PC, [SP], #4
-
 clock:
 	ADD R4, R4,	#1 @R4 : secondes
-	CMP R0, #60
+	CMP R4, #60
 	BNE fin
 	MOV R4, #0
 
@@ -65,7 +14,7 @@ clock:
 	BNE fin
 	MOV R6, #0
 
-	ADD R7, R7, #1 @R7 : jours (le cas chimoist)
+	ADD R7, R7, #1 @R7 : jours (le cas chiant)
 	CMP R8, #0
 	BNE fev
 	CMP R7, #31
@@ -167,3 +116,55 @@ fin:
 	MOV R10, #1 @pour signifier au simulateur qu'on a fini le calcul de la seconde
 	MOV R10, #0
 	B clock
+
+div:
+	MOV R2, R0
+	MOV R0, #0
+loop:
+	CMP R2, R1
+	ADDGE R0, R0, #1
+	SUBGE R2, R2, R1
+	BGE loop
+	MOV PC, LR
+
+mod:
+	STR LR, [SP, #0]
+	SUB SP, SP, #4
+	STR R0, [SP, #0]
+	SUB SP, SP, #4
+
+	BL div
+
+	MUL R2, R0, R1
+	LDR R0, [SP], #4
+	SUB R0, R0, R2
+	
+	LDR PC, [SP], #4
+
+
+bis:
+	STR LR, [SP, #0]
+	SUB SP, SP, #4
+	MOV R3, R0
+	
+	TST R0, #3 @ R0 % 4 == 0 ?
+	BNE non
+	
+	MOV R1, #100 @ R0 % 100 != 0 ?
+	BL mod
+	CMP R0, #0
+	BNE oui
+
+	MOV R0, R3 @ R0 % 400 == 0 ?
+	MOV R1, #400
+	BL mod
+	CMP R0, #0
+	BNE non
+
+oui:
+	MOV R0, #1
+	LDR PC, [SP], #4
+non:
+	MOV R0, #0
+	LDR PC, [SP], #4
+
