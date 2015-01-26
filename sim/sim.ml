@@ -24,6 +24,9 @@ let rec creer a=function
         | 0 -> []
         | n -> a::(creer a (n-1))
 
+let rec affliste v=match v with [] ->print_newline()
+        | t::q -> if t then print_string "1" else print_string "0";affliste q
+
 let rec lit s=
         try (
         let ch=ref "" and l=ref [] in
@@ -73,16 +76,14 @@ let execute p iter=
         | Econcat(a,b) -> (valeur a)@(valeur b)
         | Eslice(d,f,v) -> selec d f (valeur v)
         | Eselect(d,v) -> selec d d (valeur v)
-        | Erom(_,_,addr) -> (Hashtbl.find memoire id).(conv (valeur addr))
-        | Eram(_,_,lec,_,_,_) -> (Hashtbl.find memoire id).(conv (valeur lec)) 
+        | Erom(_,_,addr) -> (Hashtbl.find memoire id).((conv (valeur addr))/4)
+        | Eram(_,_,lec,_,_,_) -> (Hashtbl.find memoire id).((conv (valeur lec))/4) 
         )
         and execEcr (id,e)=match e with
         | Eram(_,_,_,becr,ecrAddr,ecrVal) -> if List.hd (valeur becr) then
-                (let tab=Hashtbl.find memoire id in tab.(conv (valeur ecrAddr))<-valeur ecrVal; Hashtbl.replace memoire id tab)
+                (let tab=Hashtbl.find memoire id in tab.((conv (valeur ecrAddr))/4)<-valeur ecrVal; Hashtbl.replace memoire id tab)
         | _ -> () 
-        in let rec affliste v=match v with [] ->print_newline()
-        | t::q -> if t then print_string "1" else print_string "0";affliste q
-        in let affiche s=
+        and affiche s=
         Printf.printf "%s = " s;
         affliste (valeur (Avar s));
         and litVar id=
@@ -100,10 +101,11 @@ let simule p n rt =match n with
 	let it=ref 0 in
 	while true do
         let temps = Sys.time () in
-		execute p !it; (* avance d'un cycle *)
-		if gen (Hashtbl.find valeurs.(!it) "r10c") = 1 then
+		execute p (!it mod 2); (* avance d'un cycle *)
+		if gen (Hashtbl.find valeurs.(!it mod 2) "r10c") = 1 then
 			affiche_temps ();
-        if rt then (while (Sys.time () -. temps < 1.) do () done)
+(*        if rt then (while (Sys.time () -. temps < 1.) do () done)  *)
+        incr it;
 	done
 | _ ->init p; for i=0 to n-1 do execute p (i mod 2); done 
 
