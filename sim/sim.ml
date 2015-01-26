@@ -12,12 +12,8 @@ let rec gen = function
 let ai it n = gen (Hashtbl.find valeurs.(it mod 2) n)
 
 let affiche_temps it =
-        Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d" (ai it "r7c") (ai it "r8c") (ai it "r9c") (ai it "r6c") (ai it "r5c") (ai it "r4c");
+        Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d" ((ai it "r7c")+1) ((ai it "r8c")+1) (ai it "r9c") (ai it "r6c") (ai it "r5c") (ai it "r4c");
 	print_newline ()
-
-let affiche_ram () = 
-        Hashtbl.iter (fun s ram -> if s.[0]='l' then Printf.printf "0:%.2d 1:%.2d 2:%.2d 3:%.2d 4:%.2d 5:%.2d 6:%.2d 7:%.2d\n"
-        (ai ram 0) (ai ram 1) (ai ram 2) (ai ram 3) (ai ram 4) (ai ram 5) (ai ram 6) (ai ram 7) ) memoire
 
 let taille=function
         | TBit -> 1
@@ -112,11 +108,7 @@ let simule p n rt =match n with
 (*        let temps = Sys.time () in *)
 		execute p (!it mod 2); (* avance d'un cycle *)
 		if gen (Hashtbl.find valeurs.(!it mod 2) "r10c") = 1 then
-<<<<<<< HEAD
                         affiche_temps (!it);
-=======
-                        affiche_ram ();
->>>>>>> 3f1c46ab5fb1255f14ed9b8bbf5ba4669de5d08c
 (*        if rt then (while (Sys.time () -. temps < 1.) do () done)  *)
         incr it;
 	done

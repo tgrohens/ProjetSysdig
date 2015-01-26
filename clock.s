@@ -1,6 +1,13 @@
 main:
 	MOV SP, #65536
 	SUB SP, SP, #4
+	MOV R4, #0
+	MOV R5, #52
+	MOV R6, #17
+	MOV R7, #25
+	MOV R8, #0
+	MOV R9, #2000
+	B fin
 clock:
 	ADD R4, R4,	#1 @R4 : secondes
 	CMP R4, #60
@@ -22,6 +29,8 @@ clock:
 	BNE fev
 	CMP R7, #31
 	BNE fin
+	MOV R7, #0
+	B mois
 fev:
 	CMP R8, #1
 	BNE mar
