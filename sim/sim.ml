@@ -95,7 +95,7 @@ let execute p iter=
         List.iter execEcr p.p_eqs;
         List.iter affiche p.p_outputs
 
-let simule p n=match n with
+let simule p n rt =match n with
 | -1 -> init p;
 	let it=ref 0 in
 	while true do
@@ -103,7 +103,7 @@ let simule p n=match n with
 		execute p !it; (* avance d'un cycle *)
 		if gen (Hashtbl.find valeurs.(!it) "r10c") = 1 then
 			affiche_temps ();
-        while (Sys.time () -. temps < 1.) do () done
+        if rt then (while (Sys.time () -. temps < 1.) do () done)
 	done
 | _ ->init p; for i=0 to n-1 do execute p (i mod 2); done 
 

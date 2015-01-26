@@ -6,8 +6,13 @@ Paul Kirchner
 
 # Architecture
 
-Nous allons réaliser un processeur ARMv3 (32 bits) : seulement le mode processeur ARM et pas les modes Thumb ou Jazelle. Nous ne ferons pas la version avec multiplication longue (64 bits stockés dans 2 registres), ni les instructions DSP supplémentaires.
+Nous implémentons un processeur compatible avec la plupart des instructions
+ARMv3.
 
-# Idée
+# Compilation et exécution
 
-La montre sera écrite en assembleur. Nous utiliserons les software interrupt pour interagir avec l’entrée-sortie et afficher l’heure.
+- Exécuter ./COMPIL.sh dans sim
+- Exécuter make dans assembleur
+- Compiler proco.mj en proco.net avec mjc
+- Assembler la montre avec ./assembleur/arm-as clock.s
+- Exécuter ./sim/netlist_sim.native proco.net < clock.byte
