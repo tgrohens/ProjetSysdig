@@ -167,7 +167,14 @@ let print_prog oc label_list instr_list =
 
     |_ -> assert false
   in
-  List.iteri (fun n i -> print_instr n i ; fprintf oc "\n" ) instr_list
+  List.iteri (fun n i -> print_instr n i ; fprintf oc "\n" ) instr_list;
+  let n = List.length instr_list in
+  for k = n to (1 lsl 16)-1 do
+    for l = 0 to 31 do
+        fprintf oc "0";
+    done;
+    fprintf oc "\n";
+  done
   
 
 

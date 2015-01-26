@@ -43,7 +43,7 @@ let init p= Array.iter (fun t->Hashtbl.reset t) valeurs;
         let creerRam (id,eq)=match eq with
         | Eram(addr,taille,_,_,_,_) -> Hashtbl.add memoire id (Array.init (1 lsl addr) (fun _ -> creer false taille))
         | Erom(addr,taille,_) -> Printf.printf "Mémoire lecture seule %s, adresse sur %d bits, mot de taille %d\n%!" id addr taille;
-                Hashtbl.add memoire id (Array.init (1 lsl addr) (fun i -> Printf.printf "Adresse %d :" i; lit taille))
+                Hashtbl.add memoire id (Array.init (1 lsl addr) (fun i -> lit taille))
         | _ -> ()
         in
         List.iter creerRam p.p_eqs
