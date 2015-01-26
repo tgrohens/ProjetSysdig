@@ -2,17 +2,16 @@ div:
 	MOV R2, R0
 	MOV R0, #0
 loop:
-	CMP R2 R1
+	CMP R2, R1
 	ADDGE R0, R0, #1
 	SUBGE R2, R2, R1
 	BGE loop
-	B LR
+	MOV PC, LR
 
-	
 mod:
-	STR LR, [SP]
+	STR LR, [SP, #0]
 	SUB SP, SP, #4
-	STR R0, [SP]
+	STR R0, [SP, #0]
 	SUB SP, SP, #4
 
 	BL div
@@ -25,7 +24,7 @@ mod:
 
 
 bis:
-	STR LR, [SP]
+	STR LR, [SP, #0]
 	SUB SP, SP, #4
 	MOV R3, R0
 	
@@ -162,7 +161,9 @@ fin:
 	ADD R1, R6, R7, LSL #8
 	ADD R0, R0, R1, LSL #16
 	MOV R1, #0
-	STR R0, [R1]
+	STR R0, [R1, #0]
 	ADD R0, R8, R9, LSL #8
 	STR R0, [R1, #4]
+	MOV R10, #1 @pour signifier au simulateur qu'on a fini le calcul de la seconde
+	MOV R10, #0
 	B clock
