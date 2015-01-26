@@ -9,10 +9,11 @@ let rec gen = function
 	|h::t -> (if h then 1 else 0) + 2*(gen t)
 
 (*Fonction d'affichage de la date*)
-let ai ram n = gen ram.(n)
+let ai ram n = gen (ram.(n))
 
-let affiche_temps () =
-        Hashtbl.iter (fun s ram -> if s.[0]='l' then Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n%!" (ai ram 3) (ai ram 4) (ai ram 7 + (1 lsl 8)*(ai ram 6) + (1 lsl 16)+(ai ram 5)) (ai ram 2) (ai ram 1) (ai ram 0) ) memoire
+(*let affiche_temps it =
+        Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d" (ai it "r7c") (ai it "r8c") (ai it "r9c") (ai it "r6c") (ai it "r5c") (ai it "r4c");
+	print_newline ()*)
 
 let affiche_ram () = 
         Hashtbl.iter (fun s ram -> if s.[0]='l' then Printf.printf "0:%.2d 1:%.2d 2:%.2d 3:%.2d 4:%.2d 5:%.2d 6:%.2d 7:%.2d\n%!"
@@ -94,7 +95,7 @@ let execute p lRam iter=
         | _ -> () 
         and affiche s=
         Printf.printf "%s = " s;
-        affliste (valeur (Avar s));
+        affliste (valeur (Avar s))
         and litVar id=
         let s=taille (Env.find id p.p_vars) in
         Printf.printf "%s (%d) ? %!" id s;
