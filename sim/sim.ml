@@ -99,7 +99,7 @@ let simule p n rt =match n with
 | -1 -> init p;
 	let it=ref 0 in
 	while true do
-        let temps = Sys.time () in
+(*        let temps = Sys.time () in *)
 		execute p (!it mod 2); (* avance d'un cycle *)
 		if gen (Hashtbl.find valeurs.(!it mod 2) "r10c") = 1 then
                         affiche_temps ();
