@@ -4,4 +4,4 @@ ocamlbuild -clean
 cd ../assembleur
 ocamlbuild -clean
 cd ..
-rm proco.net clock.byte
+rm *.net *.byte
