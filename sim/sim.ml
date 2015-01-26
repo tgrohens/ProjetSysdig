@@ -9,11 +9,15 @@ let rec gen = function
 	|h::t -> (if h then 1 else 0) + 2*(gen t)
 
 (*Fonction d'affichage de la date*)
-let ai it n = gen (Hashtbl.find valeurs.(it mod 2) n)
+let ai ram n = gen (ram.(n))
 
-let affiche_temps it =
-        Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d" ((ai it "r7c")+1) ((ai it "r8c")+1) (ai it "r9c") (ai it "r6c") (ai it "r5c") (ai it "r4c");
-	print_newline ()
+(*let affiche_temps it =
+        Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d" (ai it "r7c") (ai it "r8c") (ai it "r9c") (ai it "r6c") (ai it "r5c") (ai it "r4c");
+	print_newline ()*)
+
+let affiche_ram () = 
+        Hashtbl.iter (fun s ram -> if s.[0]='l' then Printf.printf "0:%.2d 1:%.2d 2:%.2d 3:%.2d 4:%.2d 5:%.2d 6:%.2d 7:%.2d\n%!"
+        (ai ram 0) (ai ram 1) (ai ram 2) (ai ram 3) (ai ram 4) (ai ram 5) (ai ram 6) (ai ram 7) ) memoire
 
 let taille=function
         | TBit -> 1
@@ -57,7 +61,9 @@ let init p= Array.iter (fun t->Hashtbl.reset t) valeurs;
 let rec conv=function [] -> 0
         | t::q -> (if t then 1 else 0)+2*(conv q)
 
-let execute p iter=
+let filtre l=List.filter (fun (id,e)->match e with Eram(_,_,_,_,_,_)-> true | _ -> false) l
+
+let execute p lRam iter=
         let convertit v=match v with VBit(b) -> [b]
                         | VBitArray(v) -> Array.to_list v
 
@@ -97,22 +103,21 @@ let execute p iter=
         in
         List.iter (fun s->Hashtbl.replace valeurs.(iter) s (litVar s)) p.p_inputs;
         List.iter exec p.p_eqs;
-        List.iter execEcr p.p_eqs(*;
+        List.iter execEcr lRam (*;
         List.iter affiche p.p_outputs*)
 
-let simule p n rt =match n with
-| -1 -> print_string "ok\n"; init p;
-		print_string "ok\n";	
+let simule p n rt =let lRam=filtre p.p_eqs in match n with
+| -1 -> init p;
 	let it=ref 0 in
 	while true do
 (*        let temps = Sys.time () in *)
-		execute p (!it mod 2); (* avance d'un cycle *)
+		execute p lRam (!it mod 2); (* avance d'un cycle *)
 		if gen (Hashtbl.find valeurs.(!it mod 2) "r10c") = 1 then
-                        affiche_temps (!it);
+                        affiche_ram ();
 (*        if rt then (while (Sys.time () -. temps < 1.) do () done)  *)
         incr it;
 	done
-| _ ->init p; for i=0 to n-1 do execute p (i mod 2); done 
+| _ ->init p; for i=0 to n-1 do execute p lRam (i mod 2); done 
 
 
 
