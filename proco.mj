@@ -359,19 +359,19 @@ end where
 
 memoire(op:[n],cpsr:[n],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[n],r9:[n],r10:[n],r11:[n],r12:[n],r13:[n],r14:[n],r15:[n])=
 (deb:[n],sr0:[n],sr1:[n],sr2:[n],sr3:[n],sr4:[n],sr5:[n],sr6:[n],sr7:[n],sr8:[n],sr9:[n],sr10:[n],sr11:[n],sr12:[n],sr13:[n],sr14:[n],sr15:[n]) where
-	exec=cond(op[28..31],cpsr[28..31]) & eq<3>(op[25..27],0.0.0) & op[4] & op[7];
+	exec=cond(op[28..31],cpsr[28..31]) & eq<2>(op[26..27],0.0);
 	(lec,lecc)=lecture(op,cpsr[29],r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
-	Rs=Mux<n>(op[22],op[0..3].op[8..11].rep<n-8>(0),lec);
+	Rs=Mux<n>(op[25],op[0..11].rep<n-12>(0),lec);
 	RsSigne=Mux<n>(op[23],moins<n>(Rs),Rs);
 	Rn=Ltable4<n>(op[16..19],r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
 	Rd=Ltable4<n>(op[12..15],r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
 	(modif,modifc)=ajoute<n>(Rn,RsSigne,0);
 	addr=Mux<n>(op[24],Rn,modif);
-	lect=ram<n/2,n>(addr[0..(n/2)-1],op[5] & exec,addr[0..(n/2)-1],Rd);
-	deb=(op[5] & exec).rep<31>(0);
-	val=Mux<n>((not op[5]) & exec,Rd,lect);
+	lect=ram<n/2,n>(addr[0..(n/2)-1],(not op[20]) & exec,addr[0..(n/2)-1],Rd);
+	deb=((not op[20]) & exec).rep<31>(0);
+	val=Mux<n>(op[20] & exec,Rd,lect);
 	(sr0t,sr1t,sr2t,sr3t,sr4t,sr5t,sr6t,sr7t,sr8t,sr9t,sr10t,sr11t,sr12t,sr13t,sr14t,sr15t)=Etable4<n>(op[12..15],val,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
-	nouvRn=Mux<n>((op[21]+op[24]) & exec,Rn,modif);
+	nouvRn=Mux<n>((op[21]+(not op[24])) & exec,Rn,modif);
 	(sr0,sr1,sr2,sr3,sr4,sr5,sr6,sr7,sr8,sr9,sr10,sr11,sr12,sr13,sr14,sr15)=Etable4<n>(op[16..19],nouvRn,sr0t,sr1t,sr2t,sr3t,sr4t,sr5t,sr6t,sr7t,sr8t,sr9t,sr10t,sr11t,sr12t,sr13t,sr14t,sr15t);
 end where
 
