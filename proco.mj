@@ -359,7 +359,7 @@ end where
 
 memoire(op:[n],cpsr:[n],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[n],r9:[n],r10:[n],r11:[n],r12:[n],r13:[n],r14:[n],r15:[n])=
 (deb:[n],sr0:[n],sr1:[n],sr2:[n],sr3:[n],sr4:[n],sr5:[n],sr6:[n],sr7:[n],sr8:[n],sr9:[n],sr10:[n],sr11:[n],sr12:[n],sr13:[n],sr14:[n],sr15:[n]) where
-	exec=cond(op[28..31],cpsr[28..31]) & eq<2>(op[26..27],0.0);
+	exec=cond(op[28..31],cpsr[28..31]) & eq<2>(op[26..27],1.0);
 	(lec,lecc)=lecture(op,cpsr[29],r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
 	Rs=Mux<n>(op[25],op[0..11].rep<n-12>(0),lec);
 	RsSigne=Mux<n>(op[23],moins<n>(Rs),Rs);
