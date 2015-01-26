@@ -60,7 +60,9 @@ let init p= Array.iter (fun t->Hashtbl.reset t) valeurs;
 let rec conv=function [] -> 0
         | t::q -> (if t then 1 else 0)+2*(conv q)
 
-let execute p iter=
+let filtre l=List.filter (fun (id,e)->match e with Eram(_,_,_,_,_,_)-> true | _ -> false) l
+
+let execute p lRam iter=
         let convertit v=match v with VBit(b) -> [b]
                         | VBitArray(v) -> Array.to_list v
 
@@ -100,21 +102,21 @@ let execute p iter=
         in
         List.iter (fun s->Hashtbl.replace valeurs.(iter) s (litVar s)) p.p_inputs;
         List.iter exec p.p_eqs;
-        List.iter execEcr p.p_eqs;
-        List.iter affiche p.p_outputs
+        List.iter execEcr lRam (*;
+        List.iter affiche p.p_outputs*)
 
-let simule p n rt =match n with
+let simule p n rt =let lRam=filtre p.p_eqs in match n with
 | -1 -> init p;
 	let it=ref 0 in
 	while true do
 (*        let temps = Sys.time () in *)
-		execute p (!it mod 2); (* avance d'un cycle *)
+		execute p lRam (!it mod 2); (* avance d'un cycle *)
 		if gen (Hashtbl.find valeurs.(!it mod 2) "r10c") = 1 then
                         affiche_ram ();
 (*        if rt then (while (Sys.time () -. temps < 1.) do () done)  *)
         incr it;
 	done
-| _ ->init p; for i=0 to n-1 do execute p (i mod 2); done 
+| _ ->init p; for i=0 to n-1 do execute p lRam (i mod 2); done 
 
 
 
