@@ -167,7 +167,7 @@ let print_prog oc label_list instr_list =
 
     |_ -> assert false
   in
-  List.iteri print_instr instr_list
+  List.iteri (fun n i -> print_instr n i ; fprintf oc "\n" ) instr_list
   
 
 

@@ -3,6 +3,19 @@ open Netlist_ast;;
 let valeurs=Array.init 2 (fun _ -> Hashtbl.create 17);;
 let memoire=Hashtbl.create 17;;
 
+
+let rec gen = function
+	|[] -> 0
+	|h::t -> (if h then 1 else 0) + 2*(gen t)
+
+(*Fonction d'affichage de la date*)
+let ai ram n = gen ram.(n)
+
+let affiche_temps () =
+	let ram = Hashtbl.find memoire "lecture" in
+	Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n" (ai ram 3) (ai ram 4) (ai ram 7 + (1 lsl 8)*(ai ram 6) + (1 lsl 16)+(ai ram 5)) (ai ram 2) (ai ram 1) (ai ram 0)
+
+
 let taille=function
         | TBit -> 1
         | TBitArray(a) -> a
@@ -30,7 +43,7 @@ let init p= Array.iter (fun t->Hashtbl.reset t) valeurs;
         let creerRam (id,eq)=match eq with
         | Eram(addr,taille,_,_,_,_) -> Hashtbl.add memoire id (Array.init (1 lsl addr) (fun _ -> creer false taille))
         | Erom(addr,taille,_) -> Printf.printf "Mémoire lecture seule %s, adresse sur %d bits, mot de taille %d\n%!" id addr taille;
-                Hashtbl.add memoire id (Array.init (1 lsl addr) (fun i -> Printf.printf "Adresse %d :" i;lit taille))
+                Hashtbl.add memoire id (Array.init (1 lsl addr) (fun i -> Printf.printf "Adresse %d :" i; lit taille))
         | _ -> ()
         in
         List.iter creerRam p.p_eqs
@@ -84,7 +97,13 @@ let execute p iter=
         List.iter affiche p.p_outputs
 
 let simule p n=match n with
-| -1 -> init p; let it=ref 0 in while true do execute p !it; it:=1-(!it); done
+| -1 -> init p;
+	let it=ref 0 in
+	while true do
+		execute p !it; (* avance d'un cycle *)
+		if gen (Hashtbl.find valeurs.(!it) "r10c") = 1 then
+			affiche_temps ();
+	done
 | _ ->init p; for i=0 to n-1 do execute p (i mod 2); done 
 
 
