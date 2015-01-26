@@ -1,4 +1,4 @@
-open Netlist_ast;;
+open Netlist_ast
 
 let valeurs=Array.init 2 (fun _ -> Hashtbl.create 17);;
 let memoire=Hashtbl.create 17;;
@@ -42,8 +42,7 @@ let init p= Array.iter (fun t->Hashtbl.reset t) valeurs;
         Env.iter (fun id t->Hashtbl.add valeurs.(1) id (creer false (taille t))) p.p_vars;
         let creerRam (id,eq)=match eq with
         | Eram(addr,taille,_,_,_,_) -> Hashtbl.add memoire id (Array.init (1 lsl addr) (fun _ -> creer false taille))
-        | Erom(addr,taille,_) -> Printf.printf "Mémoire lecture seule %s, adresse sur %d bits, mot de taille %d\n%!" id addr taille;
-                Hashtbl.add memoire id (Array.init (1 lsl addr) (fun i -> lit taille))
+        | Erom(addr,taille,_) -> Hashtbl.add memoire id (Array.init (1 lsl addr) (fun i -> lit taille))
         | _ -> ()
         in
         List.iter creerRam p.p_eqs
@@ -100,9 +99,11 @@ let simule p n=match n with
 | -1 -> init p;
 	let it=ref 0 in
 	while true do
+        let temps = Sys.time () in
 		execute p !it; (* avance d'un cycle *)
 		if gen (Hashtbl.find valeurs.(!it) "r10c") = 1 then
 			affiche_temps ();
+        while (Sys.time () -. temps < 1.) do () done
 	done
 | _ ->init p; for i=0 to n-1 do execute p (i mod 2); done 
 
