@@ -155,9 +155,9 @@ let print_prog oc label_list instr_list =
 
     |Clz (c, rd, rm) -> (print_cond c ; fprintf oc "000101100000" ; print_register rd ; fprintf oc "00000001" ; print_register rm )
 
-    |Load_store_offset (c, u, l, i, rd, rn, n) -> (print_cond c ; fprintf oc "010" ; print_bool (i <= 0) ; print_bool u ; fprintf oc "0" ; print_bool (i = -1); print_bool l ; print_register rn ; print_register rd ; let res_n = binary_of_int n 8 in let r k = print_bool res_n.(k) in (r 0 ; r 1 ; r 2 ; r 3 ; fprintf oc "1001" ; r 4 ; r 5 ; r 6 ; r 7) )
+    |Load_store_offset (c, u, l, i, rd, rn, n) -> (print_cond c ; fprintf oc "010" ; print_bool (i <= 0) ; print_bool u ; fprintf oc "0" ; print_bool (i = -1); print_bool l ; print_register rn ; print_register rd ; let res_n = binary_of_int n 12 in Array.iter print_bool res_n)
 
-    |Load_store_register (c, u, l, i, rd, rn, rm) -> (print_cond c ; fprintf oc "011" ; print_bool (i <= 0) ; print_bool u ; fprintf oc "0" ; print_bool (i = -1) ; print_bool l ; print_register rn ; print_register rd ; fprintf oc "00001001" ; print_register rm)
+    |Load_store_register (c, u, l, i, rd, rn, rm) -> (print_cond c ; fprintf oc "011" ; print_bool (i <= 0) ; print_bool u ; fprintf oc "0" ; print_bool (i = -1) ; print_bool l ; print_register rn ; print_register rd ; fprintf oc "00000000" ; print_register rm)
 
     |Mul(c, s, rd, rm, rs) -> (print_cond c ; fprintf oc "0000000" ; print_bool s ; print_register rd ; fprintf oc "0000" ; print_register rs ; fprintf oc "1001" ; print_register rm )
     |Mla(c, s, rd, rm, rs, rn) -> (print_cond c ; fprintf oc "0000001" ; print_bool s ; print_register rd ; print_register rn ; print_register rs ; fprintf oc "1001" ; print_register rm )
