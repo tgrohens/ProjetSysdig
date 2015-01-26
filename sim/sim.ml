@@ -102,7 +102,7 @@ let simule p n rt =match n with
         let temps = Sys.time () in
 		execute p (!it mod 2); (* avance d'un cycle *)
 		if gen (Hashtbl.find valeurs.(!it mod 2) "r10c") = 1 then
-			affiche_temps ();
+                        affiche_temps ();
 (*        if rt then (while (Sys.time () -. temps < 1.) do () done)  *)
         incr it;
 	done
