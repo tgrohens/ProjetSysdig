@@ -314,8 +314,16 @@ overflow(a:[n],b:[n],c:[n])=(v) where
 	v=(not a[n-1]^b[n-1]) and (a[n-1]^c[n-1]);
 end where
 
+retourne<n>(a:[n])=(s:[n]) where
+	if n=0 then
+		s=[]
+	else
+		s=retourne<n-1>(a[1..]).a[0];
+	end if
+end where
+
 alu(op:[n],cpsr:[n],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[n],r9:[n],r10:[n],r11:[n],r12:[n],r13:[n],r14:[n],r15:[n])=
-(ncpsr:[n],sr0:[n],sr1:[n],sr2:[n],sr3:[n],sr4:[n],sr5:[n],sr6:[n],sr7:[n],sr8:[n],sr9:[n],sr10:[n],sr11:[n],sr12:[n],sr13:[n],sr14:[n],sr15:[n]) where
+(deb:[n],ncpsr:[n],sr0:[n],sr1:[n],sr2:[n],sr3:[n],sr4:[n],sr5:[n],sr6:[n],sr7:[n],sr8:[n],sr9:[n],sr10:[n],sr11:[n],sr12:[n],sr13:[n],sr14:[n],sr15:[n]) where
 	v=cpsr[28];
 	c=cpsr[29];
 	(Rs,Rsc)=lecture(op,c,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
@@ -347,7 +355,8 @@ alu(op:[n],cpsr:[n],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[
 	MOV=Rs.Rsc.v;
 	BICv=BIC<n>(Rs,Rn).Rsc.v;
 	MVN=negRs.Rsc.v;
-	res=Ltable4<n+2>(op[21..24],ANDv,EORv,SUB,RSB,ADD,ADC,SBC,RSC,TST,TEQ,CMP,CMN,ORRv,MOV,BICv,MVN);
+	res=Ltable4<n+2>(retourne<4>(op[21..24]),ANDv,EORv,SUB,RSB,ADD,ADC,SBC,RSC,TST,TEQ,CMP,CMN,ORRv,MOV,BICv,MVN);
+	deb=op[21..24].rep<28>(0);
 	exec=cond(op[28..31],cpsr[28..31]) & (not op[26]) & (not op[27]) & (not ((not op[25]) & op[4] & op[7]));
 	R=Mux<n>((op[23]+(not op[24]))&exec,Rd,res[0..(n-1)]);
 	(sr0,sr1,sr2,sr3,sr4,sr5,sr6,sr7,sr8,sr9,sr10,sr11,sr12,sr13,sr14,sr15)=Etable4<n>(op[12..15],R,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
@@ -387,19 +396,11 @@ memoire(op:[n],cpsr:[n],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],
 	Rd=Ltable4<n>(op[12..15],r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
 	(modif,modifc)=ajoute<n>(Rn,RsSigne,0);
 	addr=Mux<n>(op[24],Rn,modif);
-	lecture=ram<n/2,n>(addr[0..(n/2)-1],op[5] & exec,addr[0..(n/2)-1],Rd);
-	val=Mux<n>((not op[5]) & exec,Rd,lecture);
+	lect=ram<n/2,n>(addr[0..(n/2)-1],op[5] & exec,addr[0..(n/2)-1],Rd);
+	val=Mux<n>((not op[5]) & exec,Rd,lect);
 	(sr0t,sr1t,sr2t,sr3t,sr4t,sr5t,sr6t,sr7t,sr8t,sr9t,sr10t,sr11t,sr12t,sr13t,sr14t,sr15t)=Etable4<n>(op[12..15],val,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
 	nouvRn=Mux<n>((op[21]+op[24]) & exec,Rn,modif);
 	(sr0,sr1,sr2,sr3,sr4,sr5,sr6,sr7,sr8,sr9,sr10,sr11,sr12,sr13,sr14,sr15)=Etable4<n>(op[16..19],nouvRn,sr0t,sr1t,sr2t,sr3t,sr4t,sr5t,sr6t,sr7t,sr8t,sr9t,sr10t,sr11t,sr12t,sr13t,sr14t,sr15t);
-end where
-
-retourne<n>(a:[n])=(s:[n]) where
-	if n=0 then
-		s=[]
-	else
-		s=retourne<n-1>(a[1..]).a[0];
-	end if
 end where
 
 debug()=(e0:[n],e1:[n]) where
@@ -412,7 +413,7 @@ debug()=(e0:[n],e1:[n]) where
 	(e0,c)=lslR(a,b,0);
 end where
 
-main()=(r0c:[n],r1c:[n],r2c:[n],r3c:[n],r4c:[n],r5c:[n],r6c:[n],r7c:[n],r8c:[n],r9c:[n],r10c:[n],r11c:[n],r12c:[n],r13c:[n],r14d:[n],r15e:[n],pc:[n],cpsrb:[n],cpsra:[n],op:[n],exec) where
+main()=(r0c:[n],r1c:[n],r2c:[n],r3c:[n],r4c:[n],r5c:[n],r6c:[n],r7c:[n],r8c:[n],r9c:[n],r10c:[n],r11c:[n],r12c:[n],r13c:[n],r14d:[n],r15e:[n],pc:[n],cpsrb:[n],op:[n],exec,deb:[n]) where
 	r0=registre<n>(r0c);
 	r1=registre<n>(r1c);
 	r2=registre<n>(r2c);
@@ -440,11 +441,12 @@ main()=(r0c:[n],r1c:[n],r2c:[n],r3c:[n],r4c:[n],r5c:[n],r6c:[n],r7c:[n],r8c:[n],
 	op=1.rep<7>(0).rep<4>(0).0.0.0.1.0.0.0.1.1.0.0.1.0.1.0.0.0.1.1.1;
 	(tmp,e)=ajoute<n>(r8bis,rep<8>(1).rep<24>(0),0);*)
 	exec=cond(op[28..31],cpsr[28..31]);
-	(cpsra,r0a,r1a,r2a,r3a,r4a,r5a,r6a,r7a,r8a,r9a,r10a,r11a,r12a,r13a,r14a,r15a)=alu(op,cpsr,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
+	(deb,cpsra,r0a,r1a,r2a,r3a,r4a,r5a,r6a,r7a,r8a,r9a,r10a,r11a,r12a,r13a,r14a,r15a)=alu(op,cpsr,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
 	(cpsrb,r0b,r1b,r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b,r10b,r11b,r12b,r13b,r14b,r15b)=multiplication(op,cpsra,r0a,r1a,r2a,r3a,r4a,r5a,r6a,r7a,r8a,r9a,r10a,r11a,r12a,r13a,r14a,r15a);
 	(      r0c,r1c,r2c,r3c,r4c,r5c,r6c,r7c,r8c,r9c,r10c,r11c,r12c,r13c,r14c,r15c)=memoire(op,cpsrb,r0b,r1b,r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b,r10b,r11b,r12b,r13b,r14b,r15b); 
 	(r14d,r15d)=branche(op,cpsrb,r14c,r15c);
 	r15e=Mux<n>(eq<n>(r15d,r15),r15d,suiv);
+(*	(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15)=Etable4<1>(0.0.0.0,0,r0[0],r1[0],r2[0],r3[0],r4[0],r5[0],r6[0],r7[0],r8[0],r9[0],r10[0],r11[0],r12[0],r13[0],r14[0],r15[0]); *)
 
 (*	cpsrb=cpsr;
 	r0c=r0;
