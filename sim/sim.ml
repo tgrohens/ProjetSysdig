@@ -9,10 +9,11 @@ let rec gen = function
 	|h::t -> (if h then 1 else 0) + 2*(gen t)
 
 (*Fonction d'affichage de la date*)
-let ai ram n = gen ram.(n)
+let ai it n = gen (Hashtbl.find valeurs.(it mod 2) n)
 
-let affiche_temps () =
-        Hashtbl.iter (fun s ram -> if s.[0]='l' then Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n" (ai ram 3) (ai ram 4) (ai ram 7 + (1 lsl 8)*(ai ram 6) + (1 lsl 16)+(ai ram 5)) (ai ram 2) (ai ram 1) (ai ram 0) ) memoire
+let affiche_temps it =
+        Printf.printf "%.2d/%.2d/%.4d %.2d:%.2d:%.2d" (ai it "r7c") (ai it "r8c") (ai it "r9c") (ai it "r6c") (ai it "r5c") (ai it "r4c");
+	print_newline ()
 
 
 let taille=function
@@ -84,7 +85,7 @@ let execute p iter=
         | _ -> () 
         and affiche s=
         Printf.printf "%s = " s;
-        affliste (valeur (Avar s));
+        affliste (valeur (Avar s))
         and litVar id=
         let s=taille (Env.find id p.p_vars) in
         Printf.printf "%s (%d) ? %!" id s;
@@ -92,17 +93,18 @@ let execute p iter=
         in
         List.iter (fun s->Hashtbl.replace valeurs.(iter) s (litVar s)) p.p_inputs;
         List.iter exec p.p_eqs;
-        List.iter execEcr p.p_eqs;
-        List.iter affiche p.p_outputs
+        List.iter execEcr p.p_eqs(*;
+        List.iter affiche p.p_outputs*)
 
 let simule p n rt =match n with
-| -1 -> init p;
+| -1 -> print_string "ok\n"; init p;
+		print_string "ok\n";	
 	let it=ref 0 in
 	while true do
         let temps = Sys.time () in
 		execute p (!it mod 2); (* avance d'un cycle *)
 		if gen (Hashtbl.find valeurs.(!it mod 2) "r10c") = 1 then
-                        affiche_temps ();
+                        affiche_temps (!it);
 (*        if rt then (while (Sys.time () -. temps < 1.) do () done)  *)
         incr it;
 	done
