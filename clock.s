@@ -1,13 +1,12 @@
 main:
 	MOV SP, #65536
 	SUB SP, SP, #4
-	MOV R4, #00
-	MOV R5, #00
-	MOV R6, #13
-	MOV R7, #26
+	MOV R4, #58
+	MOV R5, #59
+	MOV R6, #23
+	MOV R7, #27
 	MOV R8, #1
 	MOV R9, #2000
-	ADD R9, R9, #15
 	B fin
 clock:
 	ADD R4, R4,	#1 @R4 : secondes
@@ -25,7 +24,7 @@ clock:
 	BNE fin
 	MOV R6, #0
 
-	ADD R7, R7, #1 @R7 : jours (le cas chiant)
+	ADD R7, R7, #1 @R7 : jours (le cas désagréable)
 	CMP R8, #0
 	BNE fev
 	CMP R7, #31
@@ -149,34 +148,34 @@ mod:
 	BL div
 
 	MUL R2, R0, R1
+
 	MOV R0, R11
 	SUB R0, R0, R2
 	
-	MOV PC, LR
+	MOV PC, R10
 
 bis:
-	STR LR, [SP, #0]
-	SUB SP, SP, #4
+	MOV R12, LR
 	MOV R3, R0
 	
 	TST R0, #3 @ R0 % 4 == 0 ?
 	BNE non
 	
-@	MOV R1, #100 @ R0 % 100 != 0 ?
-@	BL mod
-@	CMP R0, #0
-@	BNE oui
-@
-@	MOV R0, R3 @ R0 % 400 == 0 ?
-@	MOV R1, #400
-@	BL mod
-@	CMP R0, #0
-@	BNE non
+	MOV R1, #100 @ R0 % 100 != 0 ?
+	BL mod
+	CMP R0, #0
+	BNE oui
+
+	MOV R0, R3 @ R0 % 400 == 0 ?
+	MOV R1, #400
+	BL mod
+	CMP R0, #0
+	BNE non
 
 oui:
 	MOV R0, #1
-	LDR PC, [SP], #4
+	MOV PC, R12
 non:
 	MOV R0, #0
-	LDR PC, [SP], #4
+	MOV PC, R12
 
