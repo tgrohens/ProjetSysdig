@@ -4,8 +4,8 @@ main:
 	MOV R4, #55
 	MOV R5, #59
 	MOV R6, #23
-	MOV R7, #30
-	MOV R8, #2
+	MOV R7, #27
+	MOV R8, #1
 	MOV R9, #2000
 	ADD R9, R9, #15
 	B fin
