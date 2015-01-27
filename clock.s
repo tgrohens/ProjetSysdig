@@ -1,11 +1,11 @@
 main:
 	MOV SP, #65536
 	SUB SP, SP, #4
-	MOV R4, #55
+	MOV R4, #59
 	MOV R5, #59
-	MOV R6, #17
-	MOV R7, #25
-	MOV R8, #0
+	MOV R6, #23
+	MOV R7, #30
+	MOV R8, #2
 	MOV R9, #2000
 	ADD R9, R9, #15
 	B fin
@@ -21,7 +21,7 @@ clock:
 	MOV R5, #0
 
 	ADD R6, R6, #1 @R6 : heures (modulo 24)
-	CMP R0, #24
+	CMP R6, #24
 	BNE fin
 	MOV R6, #0
 
@@ -100,7 +100,7 @@ oct:
 	B mois
 nov:
 	CMP R8, #10
-	BNE nov
+	BNE dec
 	CMP R7, #30
 	BNE fin
 	MOV R7, #0

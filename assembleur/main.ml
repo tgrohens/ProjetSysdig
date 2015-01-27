@@ -56,7 +56,7 @@ let print_prog oc label_list instr_list =
                 failwith "Valeur immédiate invalide"
             else
                 let shift = first / 2 in
-                let immed = n lsr first in
+                let immed = n lsr (2 * shift) in
                 Array.iter print_bool (binary_of_int shift 4); Array.iter print_bool (binary_of_int immed 8);
         end
     |Lsl_by_i (rm, n) ->
