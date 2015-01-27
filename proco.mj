@@ -176,10 +176,10 @@ registre<n>(a:[n])=(s:[n]) where
 end where
 
 cond(op:[4],nzcv:[4])=(r) where
-	n=nzcv[0];
-	z=nzcv[1];
-	c=nzcv[2];
-	v=nzcv[3];
+	n=nzcv[3];
+	z=nzcv[2];
+	c=nzcv[1];
+	v=nzcv[0];
 	r=Ltable4<1>(op,z,not z,c,not c,n,not n,v,not v,c & (not z),(not c)+z,not n^v,n^v,(not z) & (not (n^v)),z+(n^v),1,0);
 end where
 
@@ -327,10 +327,10 @@ alu(op:[n],cpsr:[n],r0:[n],r1:[n],r2:[n],r3:[n],r4:[n],r5:[n],r6:[n],r7:[n],r8:[
 	BICv=BIC<n>(Rs,Rn).Rsc.v;
 	MVN=negRs.Rsc.v;
 	res=Ltable4<n+2>(op[21..24],ANDv,EORv,SUB,RSB,ADD,ADC,SBC,RSC,TST,TEQ,CMP,CMN,ORRv,MOV,BICv,MVN);
-	deb=op[21..24].rep<28>(0);
 	exec=cond(op[28..31],cpsr[28..31]) & (not op[26]) & (not op[27]) & (not ((not op[25]) & op[4] & op[7]));
 	R=Mux<n>((op[23]+(not op[24]))&exec,Rd,res[0..(n-1)]);
 	(sr0,sr1,sr2,sr3,sr4,sr5,sr6,sr7,sr8,sr9,sr10,sr11,sr12,sr13,sr14,sr15)=Etable4<n>(op[12..15],R,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
+	deb=cpsr[0..27].res[n+1].res[n].eq<n>(res[0..(n-1)],rep<n>(0)).res[n-1];
 	ncpsr=cpsr[0..27].Mux<4>(op[20]&exec,cpsr[28..31],res[n+1].res[n].eq<n>(res[0..(n-1)],rep<n>(0)).res[n-1]);
 end where
 
@@ -385,7 +385,7 @@ debug()=(e0:[n],e1:[n]) where
 	(e0,c)=lslR(a,b,0);
 end where
 
-main()=((*r0c:[n],r1c:[n],r2c:[n],r3c:[n],r4c:[n],r5c:[n],r6c:[n],r7c:[n],r8c:[n],r9c:[n],r10c:[n],r11c:[n],r12c:[n],r13c:[n],r14d:[n],r15e:[n],r7c:[n],r8c:[n],pc:[n],cpsrb:[n],op:[n],deb:[n],exec*)) where
+main()=((*r0c:[n],r1c:[n],r2c:[n],r3c:[n],r4c:[n],r5c:[n],r6c:[n],r7c:[n],r8c:[n],r9c:[n],r10c:[n],r11c:[n],r12c:[n],r13c:[n],r14d:[n],r15e:[n],r7c:[n],r8c:[n],pc:[n],cpsra:[n],cpsrb:[n],op:[n],deb:[n],exec*)) where
 	r0=registre<n>(r0c);
 	r1=registre<n>(r1c);
 	r2=registre<n>(r2c);
@@ -415,7 +415,7 @@ main()=((*r0c:[n],r1c:[n],r2c:[n],r3c:[n],r4c:[n],r5c:[n],r6c:[n],r7c:[n],r8c:[n
 	exec=cond(op[28..31],cpsr[28..31]);
 	(deb,cpsra,r0a,r1a,r2a,r3a,r4a,r5a,r6a,r7a,r8a,r9a,r10a,r11a,r12a,r13a,r14a,r15a)=alu(op,cpsr,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15);
 	(cpsrb,r0b,r1b,r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b,r10b,r11b,r12b,r13b,r14b,r15b)=multiplication(op,cpsra,r0a,r1a,r2a,r3a,r4a,r5a,r6a,r7a,r8a,r9a,r10a,r11a,r12a,r13a,r14a,r15a);
-	(  deb,r0c,r1c,r2c,r3c,r4c,r5c,r6c,r7c,r8c,r9c,r10c,r11c,r12c,r13c,r14c,r15c)=memoire(op,cpsrb,r0b,r1b,r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b,r10b,r11b,r12b,r13b,r14b,r15b); 
+	( deb2,r0c,r1c,r2c,r3c,r4c,r5c,r6c,r7c,r8c,r9c,r10c,r11c,r12c,r13c,r14c,r15c)=memoire(op,cpsrb,r0b,r1b,r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b,r10b,r11b,r12b,r13b,r14b,r15b); 
 	(r14d,r15d)=branche(op,cpsrb,r14c,r15c);
 	r15e=Mux<n>(eq<n>(r15d,r15),r15d,suiv);
 
