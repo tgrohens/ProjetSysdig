@@ -28,7 +28,7 @@ let print_prog oc label_list instr_list =
   in
   let print_unsigned_int n t =
     if n >= 0 then (fprintf oc "0" ; let res_n = binary_of_int n (t-1) in Array.iter print_bool res_n)
-    else (fprintf oc "1" ; let res_n = binary_of_int ((pow2 t) + n) (t-1) in Array.iter print_bool res_n)
+    else (fprintf oc "1" ; let res_n = binary_of_int ((1 lsl t) + n) (t-1) in Array.iter print_bool res_n)
   in
   let print_register r =
     let res = binary_of_int r 4 in
@@ -41,7 +41,7 @@ let print_prog oc label_list instr_list =
 	let res = binary_of_int n 32 in
         let k = ref 0 in
 	let b = ref false in
-	while (!k < 15 && not(!b)) do
+	while (!k <= 15 && not(!b)) do
 	  b := true;
 	  for i = 0 to 23 do
 	    if res.((i + 2*(!k)) mod 32) then b := false;
