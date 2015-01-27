@@ -103,8 +103,8 @@ let execute p lRam iter=
         in
         List.iter (fun s->Hashtbl.replace valeurs.(iter) s (litVar s)) p.p_inputs;
         List.iter exec p.p_eqs;
-        List.iter execEcr lRam (*;
-        List.iter affiche p.p_outputs*)
+        List.iter execEcr lRam ;
+        List.iter affiche p.p_outputs
 
 let simule p n rt =let lRam=filtre p.p_eqs in match n with
 | -1 -> init p;

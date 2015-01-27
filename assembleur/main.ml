@@ -3,7 +3,18 @@ open Parser
 open Lexing
 open Printf
 
-
+let positions bits =
+    let n = Array.length bits in
+    let first = ref n in
+    let modif = ref false in
+    let last = ref n in
+    for i = n-1 downto 0 do
+        if bits.(i) = true then begin
+            last := n-i-1;
+            if !modif = false then (first := n-i-1; modif := true);
+        end
+    done;
+(!first, !last)
 
 let print_prog oc label_list instr_list =
   let print_bool b =
@@ -37,26 +48,17 @@ let print_prog oc label_list instr_list =
   let print_shifter = function
     |Reg r -> fprintf oc "00000000"; print_register r
     |Imm n ->
-      (
-	let res = binary_of_int n 32 in
-        let k = ref 0 in
-	let b = ref false in
-	while (!k < 15 && not(!b)) do
-	  b := true;
-	  for i = 0 to 23 do
-	    if res.((i + 2*(!k)) mod 32) then b := false;
-	  done;
-	  if not(!b) then incr k;
-	done;
-	if not(!b) then failwith "Valeur immédiate non-valide"
-	else (
-	  let res_k = binary_of_int (!k) 4 in
-	  Array.iter print_bool res_k;
-	  for i = 24 to 31 do
-	    print_bool res.((i + 2*(!k)) mod 32);
-	  done;
-	)
-      )
+        begin
+            let bits = binary_of_int n 32 in
+            let first, last = positions bits in (* first (last) : position du 1 de poids le plus faible (fort) *)
+            if last - first >= 8 then failwith "Valeur immédiate invalide"
+            else if (last - first = 7) && (first mod 2 = 1) then
+                failwith "Valeur immédiate invalide"
+            else
+                let shift = first / 2 in
+                let immed = n lsr first in
+                Array.iter print_bool (binary_of_int shift 4); Array.iter print_bool (binary_of_int immed 8);
+        end
     |Lsl_by_i (rm, n) ->
       let res_n = binary_of_int n 5 in
       Array.iter print_bool res_n;
