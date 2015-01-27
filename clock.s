@@ -1,10 +1,10 @@
 main:
 	MOV SP, #65536
 	SUB SP, SP, #4
-	MOV R4, #55
-	MOV R5, #59
-	MOV R6, #23
-	MOV R7, #27
+	MOV R4, #00
+	MOV R5, #00
+	MOV R6, #13
+	MOV R7, #26
 	MOV R8, #1
 	MOV R9, #2000
 	ADD R9, R9, #15
@@ -143,19 +143,16 @@ loop:
 	MOV PC, LR
 
 mod:
-	STR LR, [SP, #0]
-	SUB SP, SP, #4
-	STR R0, [SP, #0]
-	SUB SP, SP, #4
+	MOV R10, LR
+	MOV R11, R0
 
 	BL div
 
 	MUL R2, R0, R1
-	LDR R0, [SP], #4
+	MOV R0, R11
 	SUB R0, R0, R2
 	
-	LDR PC, [SP], #4
-
+	MOV PC, LR
 
 bis:
 	STR LR, [SP, #0]
@@ -165,16 +162,16 @@ bis:
 	TST R0, #3 @ R0 % 4 == 0 ?
 	BNE non
 	
-	MOV R1, #100 @ R0 % 100 != 0 ?
-	BL mod
-	CMP R0, #0
-	BNE oui
-
-	MOV R0, R3 @ R0 % 400 == 0 ?
-	MOV R1, #400
-	BL mod
-	CMP R0, #0
-	BNE non
+@	MOV R1, #100 @ R0 % 100 != 0 ?
+@	BL mod
+@	CMP R0, #0
+@	BNE oui
+@
+@	MOV R0, R3 @ R0 % 400 == 0 ?
+@	MOV R1, #400
+@	BL mod
+@	CMP R0, #0
+@	BNE non
 
 oui:
 	MOV R0, #1
