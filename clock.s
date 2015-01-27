@@ -1,12 +1,13 @@
 main:
 	MOV SP, #65536
 	SUB SP, SP, #4
-	MOV R4, #0
-	MOV R5, #52
+	MOV R4, #55
+	MOV R5, #59
 	MOV R6, #17
 	MOV R7, #25
 	MOV R8, #0
 	MOV R9, #2000
+	ADD R9, R9, #15
 	B fin
 clock:
 	ADD R4, R4,	#1 @R4 : secondes
@@ -118,13 +119,13 @@ mois:
 	ADD R9, R9, #1
 
 fin:
-	ADD R0, R4, R5, LSL #8
-	ADD R1, R6, R7, LSL #8
-	ADD R0, R0, R1, LSL #16
-	MOV R1, #0
-	STR R0, [R1, #0]
-	ADD R0, R8, R9, LSL #16 @ l'an tient sur 16 bits, on décale donc de 16
-	STR R0, [R1, #4]
+	MOV R0, #0
+	STR R4, [R0, #0]
+	STR R5, [R0, #4]
+	STR R6, [R0, #8]
+	STR R7, [R0, #12]
+	STR R8, [R0, #16]
+	STR R9, [R0, #20] 
 	MOV R10, #1 @pour signifier au simulateur qu'on a fini le calcul de la seconde
 	MOV R10, #0
 	B clock
