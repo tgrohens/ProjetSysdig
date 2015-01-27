@@ -39,7 +39,7 @@ let print_prog oc label_list instr_list =
   in
   let print_unsigned_int n t =
     if n >= 0 then (fprintf oc "0" ; let res_n = binary_of_int n (t-1) in Array.iter print_bool res_n)
-    else (fprintf oc "1" ; let res_n = binary_of_int ((pow2 t) + n) (t-1) in Array.iter print_bool res_n)
+    else (fprintf oc "1" ; let res_n = binary_of_int ((1 lsl t) + n) (t-1) in Array.iter print_bool res_n)
   in
   let print_register r =
     let res = binary_of_int r 4 in
