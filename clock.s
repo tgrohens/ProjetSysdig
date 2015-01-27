@@ -1,7 +1,7 @@
 main:
 	MOV SP, #65536
 	SUB SP, SP, #4
-	MOV R4, #59
+	MOV R4, #55
 	MOV R5, #59
 	MOV R6, #23
 	MOV R7, #30
@@ -126,7 +126,9 @@ fin:
 	STR R7, [R0, #12]
 	STR R8, [R0, #16]
 	STR R9, [R0, #20] 
-	MOV R10, #1 @pour signifier au simulateur qu'on a fini le calcul de la seconde
+	MOV R10, #1 
+	STR R10, [R0, #24] @dit au simulateur d'afficher
+	STR R0, [R0, #24]
 	MOV R10, #0
 	B clock
 

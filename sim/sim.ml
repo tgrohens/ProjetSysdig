@@ -101,18 +101,16 @@ let execute p lRam iter=
         List.iter (fun s->Hashtbl.replace valeurs.(iter) s (litVar s)) p.p_inputs;
         List.iter exec p.p_eqs;
         List.iter execEcr lRam ;
-        List.iter affiche p.p_outputs; 
-        print_newline ()
+        List.iter affiche p.p_outputs
 
 let simule p n rt =let lRam=filtre p.p_eqs in match n with
 | -1 -> init p;
 	let it=ref 0 in
 	while true do
-(*        let temps = Sys.time () in *)
 		execute p lRam (!it mod 2); (* avance d'un cycle *)
-		if gen (Hashtbl.find valeurs.(!it mod 2) "r10c") = 1 then
-                        affiche_ram ();
-(*        if rt then (while (Sys.time () -. temps < 1.) do () done)  *)
+        Hashtbl.iter
+            (fun s ram -> if s.[0] = 'l' then
+                if ai ram 6 = 1 then affiche_ram () ) memoire;
         incr it;
 	done
 | _ ->init p; for i=0 to n-1 do execute p lRam (i mod 2); done 
